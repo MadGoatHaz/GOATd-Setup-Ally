@@ -8,17 +8,22 @@ GOAT'd - Setup Ally is a powerful, terminal-based utility designed to streamline
 
 ## Key Features
 
-*   **Smart App Installer**: browse and batch install essential applications. Automatically detects installed status and handles dependencies via `pacman` and `yay`.
-*   **One-Click System Tasks**: Quickly perform critical system operations such as:
+*   **Smart App Installer**: Browse and batch install essential applications. Automatically detects installed status and handles dependencies via `pacman` and `yay`.
+*   **One-Click System Tasks**: Quickly perform critical system operations:
     *   Nvidia Driver Installation
     *   Firewall Configuration (UFW)
     *   System Updates
-*   **Intelligent Printer Setup**: A guided wizard for setting up CUPS and installing printer drivers. **Universal Printer Driver Search** (Real-time AUR query) with automated installation. Includes advanced configuration for network scanners (currently optimized for Brother devices).
-*   **Modern TUI**: A responsive, theme-able terminal interface with light and dark mode support.
+    *   Bluetooth Setup
+*   **Intelligent Printer Setup**: A comprehensive wizard for CUPS and printer management.
+    *   **Automated Discovery**: Auto-detects network printers (IPP/DNSSD).
+    *   **Universal Driver Search**: Real-time AUR query to find and install drivers (e.g., Brother, Epson).
+    *   **Manual Configuration**: Register printers by IP/URI if discovery fails.
+    *   **Conflict Resolution**: Smart handling of existing printer queues.
+*   **Modern TUI**: A responsive, theme-able terminal interface with **Dark** and **Light** mode support.
 
 ## Usage
 
-To run GOAT'd - Setup Ally, simply execute the wrapper script from the terminal:
+To run GOAT'd - Setup Ally, execute the wrapper script from the terminal:
 
 ```bash
 chmod +x goatd.sh
@@ -31,7 +36,22 @@ chmod +x goatd.sh
 *   Python 3
 *   `pacman`
 *   `yay` (recommended for full functionality)
+*   `cups` (for printer management)
 *   Terminal with True Color support (recommended)
+
+## Support the Project
+
+If you find GOAT'd useful, consider supporting its development!
+
+*   [**GitHub Sponsors**](https://github.com/sponsors/MadGoatHaz)
+*   [**PayPal**](https://www.paypal.com/paypalme/garretthazlett)
+
+## Roadmap
+
+*   **Snap & Flatpak Support**: Expand the app installer to support universal package formats.
+*   **Network Integration**: Advanced network management tools.
+*   **Enhanced Theming**: More color schemes and customization options.
+*   **Dependency Management**: Robust startup checks for system tools.
 
 ## License
 

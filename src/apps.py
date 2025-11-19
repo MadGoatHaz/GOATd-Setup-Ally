@@ -6,23 +6,6 @@ from textual.containers import Vertical, Horizontal
 from textual.screen import Screen
 from textual import on, work
 
-class SummaryScreen(Screen):
-    def __init__(self, installed_items: list[str]):
-        super().__init__()
-        self.installed_items = installed_items
-
-    def compose(self) -> ComposeResult:
-        yield Vertical(
-            Label("Installation Summary", id="summary_title"),
-            Static("\n".join(self.installed_items) if self.installed_items else "No packages installed.", id="summary_list"),
-            Button("Close", variant="primary", id="close_summary_btn"),
-            id="summary_container"
-        )
-
-    @on(Button.Pressed, "#close_summary_btn")
-    def close_screen(self):
-        self.dismiss()
-
 # Application Definitions
 APPLICATIONS = [
     # Pacman Apps
@@ -53,19 +36,74 @@ APPLICATIONS = [
     {"id": "proton-vpn-gtk-app", "name": "Proton VPN", "description": "VPN Client", "command": "proton-vpn-gtk-app", "manager": "yay", "default": False},
 ]
 
-class AppInstaller(Vertical):
+class AppInstaller(Horizontal):
     def compose(self) -> ComposeResult:
-        selections = [
-            (f"{app['name']} ({app['manager']}) - {app['description']}", app['id'], app['default'])
-            for app in APPLICATIONS
-        ]
-        yield SelectionList(*selections, id="app_selection")
-        yield Label("", id="install_status")
-        yield ProgressBar(total=100, show_eta=False, id="install_progress")
-        yield Button("Install Selected", variant="primary", id="install_btn")
+        # Left Panel: App List & Actions
+        with Vertical(classes="left-panel"):
+            yield Label("Select Applications", id="app_list_title")
+            # We will populate options in on_mount after checking status
+            yield SelectionList(id="app_selection")
+            
+            yield Label("", id="install_status")
+            yield ProgressBar(total=100, show_eta=False, id="install_progress")
+            
+            with Horizontal(id="app_actions"):
+                yield Button("Install Selected", variant="primary", id="install_btn")
+                yield Button("Uninstall Selected", variant="error", id="uninstall_btn")
+
+        # Right Panel: Logs
+        with Vertical(classes="right-panel"):
+            yield Label("Installation Log")
+            yield RichLog(id="app_log", markup=True, highlight=True)
 
     def on_mount(self):
         self.query_one("#install_progress", ProgressBar).display = False
+        self.run_worker(self.refresh_app_status(), exclusive=True)
+
+    async def refresh_app_status(self):
+        """Check installed status of all apps and populate the list."""
+        self.log_message("Checking installed applications...")
+        selection_list = self.query_one("#app_selection", SelectionList)
+        selection_list.clear_options()
+        
+        installed_packages = await self.get_installed_packages()
+        
+        options = []
+        for app in APPLICATIONS:
+            is_installed = False
+            # Check if the 'command' (package name) is in our installed list
+            # Note: 'command' in APPLICATIONS dict seems to act as package name based on install logic
+            if app['command'] in installed_packages:
+                is_installed = True
+            
+            # Escape brackets to prevent Rich from interpreting as style tag
+            status_prefix = r"\[Installed] " if is_installed else ""
+            label = f"{status_prefix}{app['name']} ({app['manager']}) - {app['description']}"
+            
+            # Default selection: Select if Default AND Not Installed
+            should_select = app['default'] and not is_installed
+            
+            options.append((label, app['id'], should_select))
+            
+        selection_list.add_options(options)
+        self.log_message("[green]Application list updated.[/green]")
+
+    async def get_installed_packages(self) -> set[str]:
+        """Return a set of all installed packages (pacman + yay)."""
+        # We can just run `pacman -Qq` to get all locally installed packages
+        # yay wraps pacman, so `pacman -Qq` covers everything usually.
+        try:
+            proc = await asyncio.create_subprocess_exec(
+                "pacman", "-Qq",
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE
+            )
+            stdout, _ = await proc.communicate()
+            if proc.returncode == 0:
+                return set(stdout.decode().splitlines())
+        except Exception:
+            pass
+        return set()
 
     @on(Button.Pressed, "#install_btn")
     def install_selected(self):
@@ -73,14 +111,30 @@ class AppInstaller(Vertical):
         selected_ids = selection_list.selected
         
         if not selected_ids:
-            self.log_message("No applications selected.")
+            self.log_message("[yellow]No applications selected for installation.[/yellow]")
             return
 
         self.query_one("#install_btn", Button).disabled = True
+        self.query_one("#uninstall_btn", Button).disabled = True
         self.query_one("#install_progress", ProgressBar).display = True
-        self.run_installation(selected_ids)
+        
+        self.run_worker(self.run_installation(selected_ids), exclusive=True)
 
-    @work(exclusive=True)
+    @on(Button.Pressed, "#uninstall_btn")
+    def uninstall_selected(self):
+        selection_list = self.query_one("#app_selection", SelectionList)
+        selected_ids = selection_list.selected
+        
+        if not selected_ids:
+            self.log_message("[yellow]No applications selected for uninstall.[/yellow]")
+            return
+
+        self.query_one("#install_btn", Button).disabled = True
+        self.query_one("#uninstall_btn", Button).disabled = True
+        self.query_one("#install_progress", ProgressBar).display = True
+        
+        self.run_worker(self.run_uninstallation(selected_ids), exclusive=True)
+
     async def run_installation(self, selected_ids):
         progress_bar = self.query_one("#install_progress", ProgressBar)
         status_label = self.query_one("#install_status", Label)
@@ -98,30 +152,77 @@ class AppInstaller(Vertical):
         total_steps = (1 if pacman_apps else 0) + (1 if yay_apps else 0)
         progress_bar.update(total=total_steps, progress=0)
         
-        installed_log = []
         current_step = 0
 
         if pacman_apps:
             status_label.update("Installing Pacman packages...")
-            success = await self.install_packages("pacman", pacman_apps)
-            if success:
-                installed_log.append(f"Pacman: {', '.join(pacman_apps)}")
+            await self.install_packages("pacman", pacman_apps)
             current_step += 1
             progress_bar.update(progress=current_step)
         
         if yay_apps:
             status_label.update("Installing Yay packages...")
-            success = await self.install_packages("yay", yay_apps)
-            if success:
-                installed_log.append(f"Yay: {', '.join(yay_apps)}")
+            await self.install_packages("yay", yay_apps)
             current_step += 1
             progress_bar.update(progress=current_step)
 
         status_label.update("Installation complete.")
         self.query_one("#install_btn", Button).disabled = False
+        self.query_one("#uninstall_btn", Button).disabled = False
         progress_bar.display = False
         
-        self.app.push_screen(SummaryScreen(installed_log))
+        # Refresh list to update [Installed] tags
+        await self.refresh_app_status()
+
+    async def run_uninstallation(self, selected_ids):
+        progress_bar = self.query_one("#install_progress", ProgressBar)
+        status_label = self.query_one("#install_status", Label)
+        
+        # Group by manager for efficiency, though uninstall is usually just pacman -Rns
+        apps_to_remove = []
+        
+        for app in APPLICATIONS:
+            if app['id'] in selected_ids:
+                apps_to_remove.append(app['command'])
+
+        if not apps_to_remove:
+            return
+
+        progress_bar.update(total=1, progress=0)
+        status_label.update("Uninstalling packages...")
+        
+        # Use yay for everything to be safe (it handles AUR uninstalls too)
+        # -Rns: Remove recursive, nosave (cleaner uninstall)
+        cmd = ["yay", "-Rns", "--noconfirm"] + apps_to_remove
+        cmd_str = " ".join(cmd)
+        self.log_message(f"Running: {cmd_str}")
+
+        try:
+            process = await asyncio.create_subprocess_exec(
+                *cmd,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE
+            )
+            stdout, stderr = await process.communicate()
+            
+            if stdout: self.log_message(stdout.decode())
+            if stderr: self.log_message(f"[yellow]{stderr.decode()}[/yellow]")
+            
+            if process.returncode == 0:
+                self.log_message("[green]Successfully uninstalled packages.[/green]")
+            else:
+                self.log_message(f"[red]Failed to uninstall packages. Code: {process.returncode}[/red]")
+
+        except Exception as e:
+            self.log_message(f"[red]Error: {str(e)}[/red]")
+
+        progress_bar.update(progress=1)
+        status_label.update("Uninstallation complete.")
+        self.query_one("#install_btn", Button).disabled = False
+        self.query_one("#uninstall_btn", Button).disabled = False
+        progress_bar.display = False
+        
+        await self.refresh_app_status()
 
     async def install_packages(self, manager: str, packages: list[str]) -> bool:
         cmd = []
@@ -159,12 +260,13 @@ class AppInstaller(Vertical):
             return False
 
     def log_message(self, message: str):
+        # Local log
+        try:
+            log = self.query_one("#app_log", RichLog)
+            log.write(message)
+        except Exception:
+            pass
+
+        # Global log
         if hasattr(self.app, "log_message"):
             self.app.log_message(message)
-        else:
-            # Fallback for testing or if app doesn't have log_message
-            try:
-                rich_log = self.app.query_one("#main_log", RichLog)
-                rich_log.write(message)
-            except Exception:
-                print(message)

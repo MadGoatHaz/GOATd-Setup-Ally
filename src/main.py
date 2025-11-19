@@ -25,6 +25,9 @@ class GOATdApp(App):
         self.load_config()
 
     def log_message(self, message: str) -> None:
+        if not hasattr(self, "log_buffer"):
+            self.log_buffer = []
+            
         """Log a message to the buffer and the RichLog widget."""
         self.log_buffer.append(str(message))
         try:

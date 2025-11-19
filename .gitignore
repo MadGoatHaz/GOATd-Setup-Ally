@@ -30,6 +30,7 @@ Thumbs.db
 .vscode/
 *.swp
 *.swo
+*.bak
 
 # Project specific
 debug_output.txt
