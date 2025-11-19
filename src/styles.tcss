@@ -1,0 +1,412 @@
+Screen {
+    layout: vertical;
+    background: #0a0a0a; /* Dark Black/Grey */
+    color: #e0e0e0;      /* Light Grey */
+}
+
+Header {
+    dock: top;
+    background: #1a1a1a;
+    color: #00ffff; /* Electric Blue */
+}
+
+Footer {
+    dock: bottom;
+    background: #1a1a1a;
+    color: #00ffff;
+}
+
+/* Tabs styling */
+TabbedContent {
+    height: 1fr;
+    background: #0a0a0a;
+}
+
+Tabs {
+    dock: top;
+    height: 3;
+    background: #0a0a0a;
+}
+
+Tab {
+    height: 3;
+    padding: 0 2;
+    color: #ffffff; /* Force White */
+    content-align: center middle; /* Ensure text is centered */
+}
+
+Tab.-active {
+    background: #4b0082;
+    color: #ffffff;
+    border-bottom: tall #00ffff;
+}
+
+Label {
+    padding: 1;
+    color: #e0e0e0; /* Fixed: Light Grey */
+}
+
+/* Generic Button Styling */
+Button {
+    background: #4b0082; /* Deep Purple */
+    color: #ffffff;
+    border: tall #00ffff; /* Electric Blue */
+}
+
+Button:hover {
+    background: #6a0dad;
+    border: tall #ffffff;
+}
+
+Button:focus {
+    border: tall #00ff00; /* Neon Green */
+}
+
+Input {
+    border: solid #4b0082;
+    background: #111111;
+    color: #ffffff;
+}
+
+Input:focus {
+    border: solid #00ffff;
+}
+
+/* App Installer Styles */
+AppInstaller {
+    layout: vertical;
+    height: 1fr;
+}
+
+#app_selection {
+    height: 1fr;
+    border: solid #00ffff; /* Electric Blue */
+    background: #111111;
+    margin-bottom: 1;
+    color: #ffffff;
+}
+
+#install_btn {
+    width: 100%;
+    margin-top: 1;
+}
+
+#install_status {
+    width: 100%;
+    text-align: center;
+    color: #00ffff;
+}
+
+#install_progress {
+    width: 100%;
+    margin: 1 0;
+}
+
+/* Summary Screen Styles */
+SummaryScreen {
+    align: center middle;
+}
+
+#summary_container {
+    width: 60%;
+    height: auto;
+    border: tall #00ffff;
+    background: #111111;
+    padding: 1 2;
+}
+
+#summary_title {
+    text-align: center;
+    text-style: bold;
+    width: 100%;
+    border-bottom: solid #333333;
+    margin-bottom: 1;
+}
+
+#summary_list {
+    width: 100%;
+    height: auto;
+    max-height: 10;
+    margin-bottom: 1;
+    color: #00ff00;
+}
+
+#close_summary_btn {
+    width: 100%;
+}
+
+RichLog {
+    height: 1fr;
+    border: solid #00ffff;
+    background: #000000;
+    color: #00ff00; /* Matrix Green for logs */
+}
+
+/* System Config Styles */
+SystemConfig {
+    layout: vertical;
+    height: 1fr;
+}
+
+#config_selection {
+    height: 1fr;
+    border: solid #00ffff;
+    background: #111111;
+    margin-bottom: 1;
+}
+
+#apply_config_btn {
+    width: 100%;
+    margin-top: 1;
+}
+
+/* Printer Setup Styles */
+PrinterSetup {
+    layout: vertical;
+    height: 1fr;
+}
+
+#printer_input {
+    margin-bottom: 1;
+}
+
+#search_btn {
+    width: 100%;
+    margin-bottom: 1;
+}
+
+#driver_list {
+    height: 1fr;
+    border: solid #4b0082; /* Deep Purple to distinguish from Log */
+    background: #111111;
+    margin-bottom: 1;
+}
+
+#ip_input {
+    margin-bottom: 1;
+}
+
+#install_btn {
+    width: 100%;
+    margin-bottom: 1;
+}
+
+#printer_log {
+    height: 1fr;
+    border: solid #00ffff;
+    background: #000000;
+    color: #00ff00;
+}
+
+/* --------------------------------------------------------- */
+/* LIGHT MODE OVERRIDES (.light-mode)                        */
+/* --------------------------------------------------------- */
+
+.light-mode Screen {
+    background: #fafaf0; /* Floral White */
+    color: #333333;      /* Dark Grey */
+}
+
+.light-mode Header {
+    background: #708090; /* Classy Grey */
+    color: #ffffff;
+}
+
+.light-mode Footer {
+    background: #708090;
+    color: #ffffff;
+}
+
+.light-mode TabbedContent {
+    background: #fafaf0;
+}
+
+.light-mode Tabs {
+    background: #fafaf0;
+}
+
+.light-mode Tab {
+    color: #000000; /* Force Black */
+}
+
+.light-mode Tab.-active {
+    background: #4682b4; /* Steel Blue */
+    color: #ffffff;
+    border-bottom: tall #708090;
+}
+
+.light-mode Label {
+    color: #333333;
+}
+
+.light-mode Button {
+    background: #4682b4; /* Steel Blue */
+    color: #ffffff;
+    border: tall #708090;
+}
+
+.light-mode Button:hover {
+    background: #36648b; /* Darker Steel Blue */
+    border: tall #333333;
+}
+
+.light-mode Input {
+    border: solid #708090;
+    background: #ffffff;
+    color: #333333;
+}
+
+.light-mode Input:focus {
+    border: solid #708090;
+}
+
+.light-mode #app_selection {
+    border: solid #708090;
+    background: #ffffff;
+    color: #333333;
+}
+
+.light-mode #install_status {
+    color: #4682b4;
+}
+
+.light-mode #summary_container {
+    border: tall #708090;
+    background: #ffffff;
+}
+
+.light-mode #summary_title {
+    border-bottom: solid #708090;
+    color: #333333;
+}
+
+.light-mode #summary_list {
+    color: #333333;
+}
+
+.light-mode RichLog {
+    border: solid #708090;
+    background: #ffffff;
+    color: #333333;
+}
+
+.light-mode #config_selection {
+    border: solid #708090;
+    background: #ffffff;
+    color: #333333;
+}
+
+.light-mode #driver_list {
+    border: solid #708090;
+    background: #ffffff;
+    color: #333333;
+}
+
+.light-mode #printer_log {
+    border: solid #708090;
+    background: #ffffff;
+    color: #333333;
+}
+.light-mode SelectionList > .selection-list--button {
+    background: #fafaf0;
+    color: #4682b4;
+}
+
+.light-mode SelectionList > .selection-list--button-selected {
+    background: #4682b4;
+    color: #ffffff;
+}
+
+.light-mode SelectionList > .selection-list--button-highlighted {
+    background: #e0e0e0;
+    color: #4682b4;
+}
+/* --------------------------------------------------------- */
+/* CLEAN SELECTION LIST LIGHT MODE OVERRIDES                 */
+/* --------------------------------------------------------- */
+
+/* 1. Base Button Style (Unselected, Unhighlighted) */
+.light-mode SelectionList .selection-list--button {
+    background: #fafaf0;
+    color: #4682b4;
+}
+
+/* 2. Selected State (Checked) */
+.light-mode SelectionList .selection-list--button-selected {
+    background: #4682b4 !important;
+    color: #ffffff !important;
+}
+
+/* 3. Highlighted State (Cursor/Hover) - The "Green X" Fix */
+/* Note: We use descendant selectors to handle nesting */
+
+/* Target the highlighted ListItem itself */
+.light-mode SelectionList ListItem.--highlighted,
+.light-mode SelectionList .list-view--list-item.--highlighted {
+    background: #d3d3d3 !important;
+    color: #4682b4 !important;
+}
+
+/* Target the button inside the highlighted ListItem */
+.light-mode SelectionList ListItem.--highlighted .selection-list--button,
+.light-mode SelectionList .list-view--list-item.--highlighted .selection-list--button {
+    background: transparent !important; /* Inherit grey from ListItem */
+    color: #4682b4 !important;
+}
+
+/* Target the specific highlighted button class (Textual adds this) */
+.light-mode .selection-list--button-highlighted {
+    background: #d3d3d3 !important;
+    color: #4682b4 !important;
+}
+
+/* OptionList Fallback (in case SelectionList uses OptionList internally) */
+.light-mode OptionList > .option-list--option-highlighted {
+    background: #d3d3d3 !important;
+    color: #4682b4 !important;
+}
+
+/* 4. Focused State (When the list itself has focus) */
+.light-mode SelectionList:focus ListItem.--highlighted,
+.light-mode SelectionList:focus .list-view--list-item.--highlighted {
+    background: #c0c0c0 !important;
+}
+/* SHOTGUN FIX for SelectionList Indicator */
+.light-mode SelectionList .selection-list--checkbox,
+.light-mode SelectionList .selection-list--indicator,
+.light-mode SelectionList .selection-list--mark,
+.light-mode SelectionList .selection-list--left,
+.light-mode SelectionList .checkbox,
+.light-mode SelectionList .toggle,
+.light-mode SelectionList .toggle--button,
+.light-mode SelectionList ToggleButton,
+.light-mode SelectionList Checkbox {
+     color: #4682b4 !important;
+     background: transparent !important;
+}
+
+/* Highlighted state for all of the above */
+.light-mode SelectionList ListItem.--highlighted .selection-list--checkbox,
+.light-mode SelectionList ListItem.--highlighted .selection-list--indicator,
+.light-mode SelectionList ListItem.--highlighted .selection-list--mark,
+.light-mode SelectionList ListItem.--highlighted .selection-list--left,
+.light-mode SelectionList ListItem.--highlighted .checkbox,
+.light-mode SelectionList ListItem.--highlighted .toggle,
+.light-mode SelectionList ListItem.--highlighted .toggle--button,
+.light-mode SelectionList ListItem.--highlighted ToggleButton,
+.light-mode SelectionList ListItem.--highlighted Checkbox {
+     color: #4682b4 !important;
+     background: transparent !important;
+}
+/* PRECISION FIX: Selected (Checked) AND Highlighted (Cursor) State */
+.light-mode SelectionList ListItem.--highlighted .selection-list--button-selected {
+    background: #36648b !important; /* Darker Steel Blue to indicate focus on selected item */
+    color: #ffffff !important; /* White X */
+    border: none !important; /* Ensure no weird borders */
+}
+
+/* Ensure focused list respects this too */
+.light-mode SelectionList:focus ListItem.--highlighted .selection-list--button-selected {
+    background: #36648b !important;
+    color: #ffffff !important;
+}
