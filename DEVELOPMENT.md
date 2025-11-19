@@ -51,5 +51,7 @@ GOAT'd is built using **Python** and the **Textual** TUI (Terminal User Interfac
 
 -   **Fix Styling**: Resolve the "Green X" issue and refine high-contrast modes.
 -   **Expand App Catalog**: Add more developer tools, flatpak support, and snap support.
--   **Improve Printer Database**: Expand the database of supported printers and automate driver selection further.
+-   **Refine Printer Search & Selection UX**:
+    -   Currently, search results are displaying in the 'Installation Log' area instead of correctly populating the 'Select Driver' list. This needs to be fixed so results appear in the SelectionList for easy user interaction.
+    -   Optimize the driver selection logic. Ensure that selecting a driver from the list correctly captures the package name and passes it to the installation routine.
 -   **Dependency Management**: Add a more robust check for system dependencies (git, base-devel) on startup.

@@ -13,7 +13,7 @@ GOAT'd - Setup Ally is a powerful, terminal-based utility designed to streamline
     *   Nvidia Driver Installation
     *   Firewall Configuration (UFW)
     *   System Updates
-*   **Intelligent Printer Setup**: A guided wizard for setting up CUPS and installing printer drivers (featuring specific support for Brother printers).
+*   **Intelligent Printer Setup**: A guided wizard for setting up CUPS and installing printer drivers (featuring Real-time AUR search and specific support for Brother printers).
 *   **Modern TUI**: A responsive, theme-able terminal interface with light and dark mode support.
 
 ## Usage
