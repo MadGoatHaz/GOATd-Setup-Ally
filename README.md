@@ -1,58 +1,38 @@
 # GOAT'd - Setup Ally
 
-**The ultimate post-install setup tool for Arch and EndeavourOS.**
+**Transparency and Control for your Arch System.**
 
-GOAT'd - Setup Ally is a powerful, terminal-based utility designed to streamline the process of setting up a fresh Arch Linux or EndeavourOS installation. Built with Python and Textual, it offers a modern, keyboard-centric interface to manage applications, system configurations, and hardware setup.
+GOAT'd - Setup Ally is a unified, portable post-install tool designed for Arch Linux and EndeavourOS. This is a personal project sharing my personal scripts. Unlike opaque "magic scripts" that hide what they're doing, GOAT'd is built on a "Glass Box" philosophy. It empowers you to manage applications, system configurations, and hardware setup with full visibility into every command being executed.
 
-> **Note**: This project is currently in **Beta** and under active development.
+> **Note**: This project is currently in **Beta** and under active development. Feedback is welcome!
 
 ## Key Features
 
-*   **Smart App Installer**: Browse and batch install essential applications. Automatically detects installed status and handles dependencies via `pacman` and `yay`.
-*   **One-Click System Tasks**: Quickly perform critical system operations:
-    *   Nvidia Driver Installation
-    *   Firewall Configuration (UFW)
-    *   System Updates
-    *   Bluetooth Setup
-*   **Intelligent Printer Setup**: A comprehensive wizard for CUPS and printer management.
-    *   **Automated Discovery**: Auto-detects network printers (IPP/DNSSD).
-    *   **Universal Driver Search**: Real-time AUR query to find and install drivers (e.g., Brother, Epson).
-    *   **Manual Configuration**: Register printers by IP/URI if discovery fails.
-    *   **Conflict Resolution**: Smart handling of existing printer queues.
-*   **Modern TUI**: A responsive, theme-able terminal interface with **Dark** and **Light** mode support.
+*   **Smart Firewall Management**:
+    *   **Auto-Detection**: Intelligently scans your installed applications to identify required ports (e.g., Steam, KDE Connect, OBS).
+    *   **Granular Control**: Review detected rules and toggle them individually before applying. You decide exactly what opens up.
+*   **Transparency First**:
+    *   **"Glass Box" Design**: Every operation is previewed. Whether installing a package or writing a config file, you see the exact command or file content before execution.
+    *   **Real-time Logging**: Watch operations happen step-by-step in the integrated log viewer.
+*   **Intelligent Package Handling**:
+    *   **AUR Auto-Detection**: Automatically detects and uses your preferred AUR helper (`paru`, `yay`, `trizen`, `pikaur`, or `aura`).
+    *   **Smart App Installer**: Browse categories, see what's already installed, and batch install/uninstall with ease.
+*   **GoatFetch**:
+    *   A built-in, interactive configuration tool for FastFetch. Browse themes, customize layouts, and make your terminal your own.
+*   **Printer Wizard**:
+    *   Automated discovery (IPP/DNSSD) and universal driver search (AUR query) to get your printer working without the headache.
 
 ## Usage
 
-To run GOAT'd - Setup Ally, execute the wrapper script from the terminal:
+To run GOAT'd - Setup Ally, simply execute the wrapper script from the terminal:
 
 ```bash
 chmod +x goatd.sh
 ./goatd.sh
 ```
 
-## Requirements
+## Disclaimer & Feedback
 
-*   Arch Linux or EndeavourOS
-*   Python 3
-*   `pacman`
-*   `yay` (recommended for full functionality)
-*   `cups` (for printer management)
-*   Terminal with True Color support (recommended)
+This tool is a work in progress. While I strive for stability and safety, always review the commands shown in the transparency logs before proceeding.
 
-## Support the Project
-
-If you find GOAT'd useful, consider supporting its development!
-
-*   [**GitHub Sponsors**](https://github.com/sponsors/MadGoatHaz)
-*   [**PayPal**](https://www.paypal.com/paypalme/garretthazlett)
-
-## Roadmap
-
-*   **Snap & Flatpak Support**: Expand the app installer to support universal package formats.
-*   **Network Integration**: Advanced network management tools.
-*   **Enhanced Theming**: More color schemes and customization options.
-*   **Dependency Management**: Robust startup checks for system tools.
-
-## License
-
-[MIT License](LICENSE)
+If you encounter issues or have suggestions, please open an issue on GitHub.

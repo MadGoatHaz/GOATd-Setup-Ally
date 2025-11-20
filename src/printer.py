@@ -10,13 +10,30 @@ from textual.widgets import Input, Button, SelectionList, Label, RichLog, Checkb
 from textual.worker import Worker, WorkerState
 
 class PrinterSetup(Horizontal):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        from config import detect_aur_helper
+        self.aur_helper = detect_aur_helper()
+
     def compose(self) -> ComposeResult:
         # Left Panel: Managed configured printers
         with Vertical(id="left_panel"):
-            yield Label("My Configured Printers", id="printers_title")
-            yield SelectionList(id="installed_printers_list")
-            yield Button("Print Test Page", id="test_page_btn", disabled=True)
-            yield Button("Remove Selected Printer", id="remove_printer_btn", disabled=True)
+            # Printers Section
+            with Vertical(id="printer_list_container", classes="list-container"):
+                yield Label("My Configured Printers", id="printers_title")
+                yield SelectionList(id="installed_printers_list")
+                with Horizontal(classes="button-row"):
+                    yield Button("Test", id="test_page_btn", disabled=True)
+                    yield Button("Remove", id="remove_printer_btn", disabled=True)
+            
+            # Scanners Section
+            with Vertical(id="scanner_list_container", classes="list-container"):
+                yield Label("My Configured Scanners", id="scanners_title")
+                yield SelectionList(id="configured_scanners_list")
+                with Horizontal(classes="button-row"):
+                    yield Button("Test", id="test_scanner_btn", disabled=True)
+                    yield Button("Remove", id="remove_scanner_btn", disabled=True)
+
             yield Label("System Log:")
             yield RichLog(id="printer_log", highlight=True, markup=True)
 
@@ -48,33 +65,87 @@ class PrinterSetup(Horizontal):
         self.refresh_status()
 
     def refresh_status(self):
-        """Check for configured printers and update the list."""
-        printers_list = self.query_one("#installed_printers_list", SelectionList)
-        printers_list.clear_options()
-        
-        # Check configured printers
-        printers = self.get_configured_printers()
-        if printers:
-            for p in printers:
-                # p is like "HL-L2350DW (Idle)"
-                # We want the value to be just the name "HL-L2350DW"
-                name = p.split('(')[0].strip()
-                printers_list.add_option((p, name))
-        
-        # Disable buttons
-        self.query_one("#test_page_btn", Button).disabled = True
-        self.query_one("#remove_printer_btn", Button).disabled = True
+        """Check for configured printers and scanners and update the lists."""
+        self.run_worker(self.load_printers())
+        self.run_worker(self.load_scanners())
 
-    def get_configured_printers(self) -> list[str]:
+    async def load_printers(self):
+        """Async worker to load printers."""
+        printers = await self.get_configured_printers()
+        if self.is_mounted:
+            printers_list = self.query_one("#installed_printers_list", SelectionList)
+            printers_list.clear_options()
+            if printers:
+                for p in printers:
+                    # p is like "HL-L2350DW (Idle)"
+                    # We want the value to be just the name "HL-L2350DW"
+                    name = p.split('(')[0].strip()
+                    printers_list.add_option((p, name))
+            
+            self.query_one("#test_page_btn", Button).disabled = True
+            self.query_one("#remove_printer_btn", Button).disabled = True
+
+    async def load_scanners(self):
+        """Async worker to load scanners."""
+        scanners = await self.get_configured_scanners()
+        if self.is_mounted:
+            scanners_list = self.query_one("#configured_scanners_list", SelectionList)
+            scanners_list.clear_options()
+
+            if scanners:
+                for label, device in scanners:
+                    scanners_list.add_option((label, device))
+
+            self.query_one("#test_scanner_btn", Button).disabled = True
+            self.query_one("#remove_scanner_btn", Button).disabled = True
+
+    async def get_configured_scanners(self) -> list[tuple[str, str]]:
+        """Get a list of configured scanners using scanimage -L."""
+        try:
+            # scanimage -L output: device `driver:backend:000:000' is a Vendor Model flatbed scanner
+            process = await asyncio.create_subprocess_exec(
+                "scanimage", "-L",
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE
+            )
+            stdout, stderr = await process.communicate()
+            
+            if process.returncode != 0:
+                return []
+            
+            scanners = []
+            for line in stdout.decode().splitlines():
+                if not line.strip(): continue
+                # Example: device `pfu:ScanSnap iX500:10204' is a FUJITSU ScanSnap iX500 scanner
+                # Regex to capture device and description
+                match = re.search(r"device `([^']+)' is a (.*)", line)
+                if match:
+                    device = match.group(1)
+                    description = match.group(2)
+                    scanners.append((f"{description} ({device})", device))
+            return scanners
+        except FileNotFoundError:
+             # scanimage might not be installed
+            return []
+        except Exception:
+            return []
+
+    async def get_configured_printers(self) -> list[str]:
         """Get a list of configured printers using lpstat."""
         try:
             # lpstat -p lists printers. Output format: "printer PrinterName is idle. enabled since..."
-            result = subprocess.run(["lpstat", "-p"], capture_output=True, text=True)
-            if result.returncode != 0:
+            process = await asyncio.create_subprocess_exec(
+                "lpstat", "-p",
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE
+            )
+            stdout, stderr = await process.communicate()
+            
+            if process.returncode != 0:
                 return []
             
             printers = []
-            for line in result.stdout.splitlines():
+            for line in stdout.decode().splitlines():
                 parts = line.split()
                 if len(parts) >= 3 and parts[0] == "printer":
                     name = parts[1]
@@ -261,10 +332,14 @@ class PrinterSetup(Horizontal):
 
     async def search_drivers(self, query: str):
         try:
+            if not self.aur_helper:
+                 self.log_message("[red]No AUR helper found (yay/paru/etc). Cannot search drivers.[/red]")
+                 return
+
             # yay -Ss {query} output format is typically:
             # repo/package-name version (votes) [installed]
             #     Description
-            cmd = ["yay", "-Ss", "--color=never", query]
+            cmd = [self.aur_helper, "-Ss", "--color=never", query]
             
             process = await asyncio.create_subprocess_exec(
                 *cmd,
@@ -286,15 +361,21 @@ class PrinterSetup(Horizontal):
             ansi_escape = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
             
             for line in lines:
-                # Remove OSC sequences (hyperlinks) first
-                line = re.sub(r'\x1b\].*?\x1b\\', '', line)
+                # Remove OSC sequences (hyperlinks) first - now including BEL (\x07) termination
+                line = re.sub(r'\x1b\].*?(?:\x1b\\|\x07)', '', line)
                 # Remove ANSI escape codes
                 line = ansi_escape.sub('', line)
                 
                 match = package_pattern.match(line)
                 if match:
+                    # If we had a pending package that didn't get a description, add it now with "No description"
+                    if current_package:
+                        # We shouldn't usually get here if yay output is standard (Repo/Name Desc),
+                        # but to be safe against weird output or description parsing failures:
+                        drivers.append((f"{current_package} - [No Description]", current_package))
+                        
                     current_package = match.group(2)
-                elif current_package and line.startswith("    "):
+                elif current_package and (line.startswith(" ") or line.startswith("\t")):
                     description = line.strip()
                     
                     # Check if installed
@@ -333,6 +414,13 @@ class PrinterSetup(Horizontal):
         self.query_one("#test_page_btn", Button).disabled = not has_selection
         self.query_one("#remove_printer_btn", Button).disabled = not has_selection
 
+    @on(SelectionList.SelectedChanged, "#configured_scanners_list")
+    def on_scanner_selected(self):
+        selected = self.query_one("#configured_scanners_list", SelectionList).selected
+        has_selection = bool(selected)
+        self.query_one("#test_scanner_btn", Button).disabled = not has_selection
+        self.query_one("#remove_scanner_btn", Button).disabled = not has_selection
+
     @on(Button.Pressed, "#test_page_btn")
     def on_test_page_btn(self):
         selected = self.query_one("#installed_printers_list", SelectionList).selected
@@ -356,7 +444,6 @@ class PrinterSetup(Horizontal):
             self.log_message(f"[red]Error: {escape(str(e))}[/red]")
 
     @on(Button.Pressed, "#remove_printer_btn")
-    @on(Button.Pressed, "#remove_printer_btn")
     def on_remove_printer_btn(self):
         selected = self.query_one("#installed_printers_list", SelectionList).selected
         if not selected: return
@@ -373,6 +460,54 @@ class PrinterSetup(Horizontal):
             self.refresh_status()
         except Exception as e:
             self.log_message(f"[red]Error removing printers: {escape(str(e))}[/red]")
+
+    @on(Button.Pressed, "#test_scanner_btn")
+    def on_test_scanner_btn(self):
+        selected = self.query_one("#configured_scanners_list", SelectionList).selected
+        if not selected: return
+
+        # Check for simple-scan
+        if not self.is_package_installed("simple-scan"):
+            self.log_message("[yellow]Simple Scan is not installed. Installing...[/yellow]")
+            self.run_worker(self.install_simple_scan(), exclusive=True)
+            return
+
+        self.log_message("Launching Simple Scan...")
+        # Launch simple-scan for the first selected scanner
+        device = selected[0]
+        
+        # Popen to run GUI app detached
+        try:
+            subprocess.Popen(["simple-scan", device], start_new_session=True)
+            self.log_message(f"[green]Launched Simple Scan for {device}[/green]")
+        except Exception as e:
+            self.log_message(f"[red]Failed to launch simple-scan: {e}[/red]")
+
+    async def install_simple_scan(self):
+        try:
+            if not self.aur_helper:
+                 self.log_message("[red]No AUR helper found. Cannot install Simple Scan.[/red]")
+                 return
+
+            await self._run_command([self.aur_helper, "-S", "--noconfirm", "simple-scan"])
+            self.log_message("[green]Simple Scan installed successfully. Try testing again.[/green]")
+        except Exception as e:
+            self.log_message(f"[red]Failed to install Simple Scan: {e}[/red]")
+
+    @on(Button.Pressed, "#remove_scanner_btn")
+    def on_remove_scanner_btn(self):
+        selected = self.query_one("#configured_scanners_list", SelectionList).selected
+        if not selected: return
+        
+        self.run_worker(self.remove_scanners(selected), exclusive=True)
+
+    async def remove_scanners(self, scanners):
+        for scanner in scanners:
+            self.log_message(f"[yellow]Note: Scanner '{scanner}' is likely auto-detected.[/yellow]")
+            self.log_message("Most Linux scanners (USB/Network) are detected dynamically by SANE.")
+            self.log_message("To 'remove' it, simply disconnect the device.")
+            self.log_message("If you manually added a Brother network scanner, remove it via CLI:")
+            self.log_message("  sudo brsaneconfig4 -r [FRIENDLY_NAME]")
 
     @on(SelectionList.SelectedChanged, "#driver_list")
     def on_driver_selected(self):
@@ -423,9 +558,13 @@ class PrinterSetup(Horizontal):
 
     async def uninstall_drivers(self, drivers):
         try:
+            if not self.aur_helper:
+                 self.log_message("[red]No AUR helper found. Cannot uninstall drivers.[/red]")
+                 return
+
             for driver in drivers:
                 self.log_message(f"Removing package {driver}...")
-                await self._run_command(["yay", "-Rns", "--noconfirm", driver])
+                await self._run_command([self.aur_helper, "-Rns", "--noconfirm", driver])
             self.log_message("[green]Drivers uninstalled successfully.[/green]")
             
             # Re-search to update status tags
@@ -574,9 +713,13 @@ class PrinterSetup(Horizontal):
 
     async def install_printer(self, drivers: list[str], ip_address: str, force: bool = False):
         try:
+            if not self.aur_helper:
+                 self.log_message("[red]No AUR helper found. Cannot install packages.[/red]")
+                 return
+
             # Step 1: Core Setup
             self.log_message("Step 1: Installing core packages (cups, system-config-printer, avahi, simple-scan)...")
-            await self._run_command(["yay", "-S", "--noconfirm", "cups", "system-config-printer", "avahi", "simple-scan"])
+            await self._run_command([self.aur_helper, "-S", "--noconfirm", "cups", "system-config-printer", "avahi", "simple-scan"])
             
             self.log_message("Enabling services...")
             await self._run_command(["sudo", "systemctl", "enable", "--now", "cups.service"])
@@ -586,7 +729,7 @@ class PrinterSetup(Horizontal):
             self.log_message("Step 2: Installing selected drivers...")
             for driver in drivers:
                 self.log_message(f"Installing {escape(driver)}...")
-                cmd = ["yay", "-S", "--noconfirm"]
+                cmd = [self.aur_helper, "-S", "--noconfirm"]
                 if force:
                     cmd.extend(["--overwrite", "*"])
                 cmd.append(driver)

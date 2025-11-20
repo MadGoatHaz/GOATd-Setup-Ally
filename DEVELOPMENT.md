@@ -6,52 +6,58 @@ GOAT'd is built using **Python** and the **Textual** TUI (Terminal User Interfac
 
 -   **Core Framework**: Textual (CSS-driven TUI).
 -   **Language**: Python 3.
--   **Package Management**: Uses `pacman` and `yay` (AUR helper) for application management.
+-   **Package Management**: Uses `pacman` and automatically detects AUR helpers (`yay`, `paru`, etc.).
 -   **Structure**:
     -   `src/main.py`: Entry point and main application logic.
     -   `src/styles.tcss`: Textual CSS definitions for theming and layout.
     -   `src/apps.py`: Application definitions and installation logic.
     -   `src/printer.py`: Printer setup and driver management.
-    -   `src/config.py`: Configuration handling.
+    -   `src/config.py`: Configuration handling and system tasks.
+    -   `src/goatfetch_ui.py`: UI components for GoatFetch and specific configuration screens.
 
 ## Implemented Features
 
 1.  **Smart App Installer**:
-    -   Categorized list of applications (Browsers, Development, Gaming, etc.).
-    -   Automatic detection of installed status.
-    -   Batch installation using `pacman` or `yay`.
+    -   **UI Refactor**: Replaced simple `SelectionList` with a robust `DataTable`. This allows for multi-column display showing Name, Category, Source, Tier, and Installation Status in a single view.
+    -   **Batch Operations**: Install or Uninstall multiple applications at once.
+    -   **State Sync**: Real-time updates of installation status.
 
-2.  **System Tasks**:
-    -   One-click execution of common post-install tasks.
-    -   Includes Nvidia driver installation, Firewall setup (UFW), and system updates.
+2.  **System Tasks & Firewall**:
+    -   **Granular Firewall Control**: The `FIREWALL_SELECTIONS` state dictionary tracks user preferences for which apps should have ports opened.
+    -   **Auto-Detection**: Scans `apps.py` definitions against installed packages to suggest port rules.
+    -   **One-Click Configs**: Nvidia Power Limit, Bluetooth, LM Sensors.
 
 3.  **Intelligent Printer Setup**:
     -   Automated installation of CUPS and printer drivers.
-    -   Specific support for Brother printers (e.g., DCP-L2550DW).
+    -   Real-time AUR query for driver availability.
 
-4.  **Logs & Diagnostics**:
-    -   Integrated logging tab to view operation history and errors.
+4.  **GoatFetch**:
+    -   Interactive FastFetch configuration tool.
 
-5.  **Theme System**:
-    -   Dynamic theme switching (Light/Dark mode).
-    -   Persistent user preferences via `config.json`.
+## Technical Implementation Details
+
+### AUR Helper Detection
+The `detect_aur_helper()` function in `src/config.py` iterates through a prioritized list of common AUR helpers (`paru`, `yay`, `trizen`, `pikaur`, `aura`). It uses `shutil.which` to find the first available executable on the user's system. This allows the tool to be agnostic to the user's specific AUR preference.
+
+### Firewall State Management
+Firewall configuration uses a global dictionary `FIREWALL_SELECTIONS` (imported from `config.py`) to maintain state between the detection screen and the application phase.
+-   **Detection**: `get_firewall_apps_data()` identifies installed apps with port definitions.
+-   **Selection**: The `FirewallSelectionScreen` allows users to toggle specific apps. These toggles update `FIREWALL_SELECTIONS`.
+-   **Application**: `apply_firewall()` reads this dictionary to generate `firewall-cmd` commands only for the enabled applications.
+
+### UI Components
+-   **DataTable Integration**: Both `AppInstaller` and `SystemConfig` now utilize `DataTable` widgets. This provides a structured grid view compared to standard lists, enabling richer metadata display (e.g., showing "Source: AUR" vs "Source: Pacman" inline).
+-   **Cell Selection**: Custom event handlers manage checkbox toggling within the table cells, creating a seamless hybrid between a data grid and a checklist.
 
 ## Known Issues
 
-### The "Green X" Issue (Light Mode)
+### "Green X" Issue (Light Mode)
 **Severity**: Cosmetic / Minor
-**Description**: In Light Mode, when a `SelectionList` item is highlighted or selected, the checkmark (or "X" mark) retains the default green styling instead of adapting to the light theme's contrast requirements or the specific override styles.
-**Technical Detail**: This behavior persists despite extensive CSS overrides in `styles.tcss`. It appears to be tied to the internal widget structure of Textual's `SelectionList` and how it handles state-based styling for the indicator specifically.
-**Recommendation**: Resolving this likely requires:
--   A deeper investigation into the `SelectionList` internal renderables.
--   Waiting for an upstream fix or better styling API in Textual.
--   Implementing a custom widget that mimics `SelectionList` but offers granular control over the indicator's rendering.
+**Description**: In Light Mode, checkboxes in `DataTable` or other custom widgets may retain default styling that conflicts with the light theme contrast.
+**Status**: ongoing monitoring.
 
 ## Future Roadmap
 
--   **Fix Styling**: Resolve the "Green X" issue and refine high-contrast modes.
 -   **Expand App Catalog**: Add more developer tools, flatpak support, and snap support.
--   **Refine Printer Search & Selection UX**:
-    -   Currently, search results are displaying in the 'Installation Log' area instead of correctly populating the 'Select Driver' list. This needs to be fixed so results appear in the SelectionList for easy user interaction.
-    -   Optimize the driver selection logic. Ensure that selecting a driver from the list correctly captures the package name and passes it to the installation routine.
 -   **Dependency Management**: Add a more robust check for system dependencies (git, base-devel) on startup.
+-   **Network Integration**: Advanced network management tools.

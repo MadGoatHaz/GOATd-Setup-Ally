@@ -1,0 +1,204 @@
+{
+    "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
+    "logo": {
+        "source": "LOGO_SOURCE_PLACEHOLDER",
+        "type": "LOGO_TYPE_PLACEHOLDER",
+        "color": {
+            "1": "white",
+            "2": "black"
+        },
+        "padding": {
+            "top": 1,
+            "left": 2
+        }
+    },
+    "display": {
+        "separator": " \u001b[2;37m│\u001b[0m ",
+        "color": {
+            "keys": "white",
+            "title": "white",
+            "output": "bright_black"
+        }
+    },
+    "modules": [
+        "title",
+        "separator",
+        {
+            "type": "custom",
+            "format": "\u001b[1;37mThis machine has been GOAT'd\u001b[0m"
+        },
+        "break",
+        {
+            "type": "custom",
+            "format": "\u001b[97m█████ HARDWARE █████\u001b[0m"
+        },
+        {
+            "type": "host",
+            "key": "HOST "
+        },
+        {
+            "type": "cpu",
+            "key": "CPU  "
+        },
+        {
+            "type": "gpu",
+            "key": "GPU  "
+        },
+        {
+            "type": "disk",
+            "key": "DISK "
+        },
+        {
+            "type": "memory",
+            "key": "RAM  "
+        },
+        {
+            "type": "swap",
+            "key": "SWAP "
+        },
+        {
+            "type": "display",
+            "key": "DISP "
+        },
+        {
+            "type": "battery",
+            "key": "BATT "
+        },
+        {
+            "type": "poweradapter",
+            "key": "PWR  "
+        },
+        {
+            "type": "bluetooth",
+            "key": "BLUE "
+        },
+        {
+            "type": "sound",
+            "key": "SND  "
+        },
+        "break",
+        {
+            "type": "custom",
+            "format": "\u001b[97m█████ SOFTWARE █████\u001b[0m"
+        },
+        {
+            "type": "os",
+            "key": "OS   "
+        },
+        {
+            "type": "kernel",
+            "key": "KERN "
+        },
+        {
+            "type": "uptime",
+            "key": "UP   "
+        },
+        {
+            "type": "processes",
+            "key": "PROC "
+        },
+        {
+            "type": "packages",
+            "key": "PKG  "
+        },
+        {
+            "type": "shell",
+            "key": "SH   "
+        },
+        {
+            "type": "de",
+            "key": "DE   "
+        },
+        {
+            "type": "wm",
+            "key": "WM   "
+        },
+        {
+            "type": "wmtheme",
+            "key": "WTHM "
+        },
+        {
+            "type": "theme",
+            "key": "THEM "
+        },
+        {
+            "type": "icons",
+            "key": "ICON "
+        },
+        {
+            "type": "font",
+            "key": "FONT "
+        },
+        {
+            "type": "cursor",
+            "key": "CURS "
+        },
+        {
+            "type": "terminal",
+            "key": "TERM "
+        },
+        {
+            "type": "terminalfont",
+            "key": "TFNT "
+        },
+        {
+            "type": "vulkan",
+            "key": "VULK "
+        },
+        {
+            "type": "opengl",
+            "key": "OGL  "
+        },
+        {
+            "type": "opencl",
+            "key": "OCL  "
+        },
+        "break",
+        {
+            "type": "custom",
+            "format": "\u001b[97m█████ NETWORK  █████\u001b[0m"
+        },
+        {
+            "type": "localip",
+            "key": "IP   "
+        },
+        {
+            "type": "publicip",
+            "key": "PUB  "
+        },
+        {
+            "type": "wifi",
+            "key": "WIFI "
+        },
+        {
+            "type": "weather",
+            "location": "UserLocationPlaceholder",
+            "key": "WTHR "
+        },
+        {
+            "type": "netio",
+            "key": "I/O  "
+        },
+        "break",
+        {
+            "type": "custom",
+            "format": "\u001b[97m█████ MISC_OPS █████\u001b[0m"
+        },
+        {
+            "type": "player",
+            "key": "PLAY "
+        },
+        {
+            "type": "media",
+            "key": "SONG "
+        },
+        {
+            "type": "datetime",
+            "key": "TIME "
+        },
+        {
+            "type": "users",
+            "key": "USER "
+        }
+    ]
+}

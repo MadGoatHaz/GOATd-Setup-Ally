@@ -1,0 +1,239 @@
+{
+    "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
+    // Use the existing GoatFetch logo file
+    "logo": {
+        "source": "~/.config/fastfetch/logo.txt",
+        "type": "file"
+    },
+    // Retro 80's display styling
+    "display": {
+        "constants": [
+            "\u001b[s\u001b[33C\u001b[35m│\u001b[0m\u001b[u" // Dark Magenta vertical separator (Retained for logo separation)
+        ],
+        "separator": " \u001b[35m»\u001b[0m ", // Custom colored separator
+        "key": {
+            "width": 12 // Fixed key width for alignment
+        },
+        "percent": {
+            "type": ["num", "bar"]
+        },
+        "brightColor": true, // Use bright colors globally
+        "bar": {
+            "border": null, // Remove custom borders for bars
+            "char": {
+                "elapsed": "█", // Solid block for elapsed
+                "total": "░"  // Light shade for total
+            },
+            "color": {
+                "elapsed": "#4B0082", // Dark Purple bar fill
+                "total": "#00FFFF"    // Cyan bar background
+            },
+            "width": 18
+        },
+        "color": {
+            "separator": "#4B0082", // Deeper Purple separator color
+            "keys": "#00FFFF",      // Cyan keys
+            "output": "#00FF00"     // Green output text
+        }
+    },
+    "modules": [
+        "title",
+        "break",
+        // Retro Separator 1 - SYSTEM
+        {
+            "type": "custom",
+            "format": "\u001b[34m══════「 \u001b[96m SYSTEM\u001b[34m 」════════════════════\u001b[0m"
+        },
+        {
+            "type": "os",
+            "key": "OS",
+            "keyIcon": "\uf17c", //  Linux
+            "keyColor": "#00FFFF"
+        },
+        {
+            "type": "kernel",
+            "key": "Kernel",
+            "keyIcon": "\uf013", //  Cog
+            "keyColor": "#00FFFF"
+        },
+        {
+            "type": "initsystem",
+            "key": "Init",
+            "keyIcon": "\ue303", //  Systemd
+            "keyColor": "#00FFFF"
+        },
+        {
+            "type": "locale",
+            "key": "Locale",
+            "keyIcon": "\uf0ec", //  Globe
+            "keyColor": "#00FFFF"
+        },
+        {
+            "type": "uptime",
+            "key": "Uptime",
+            "keyIcon": "\uf017", //  Clock
+            "keyColor": "#00FFFF"
+        },
+        {
+            "type": "datetime",
+            "key": "Date",
+            "format": "{year}-{month-pretty}-{day-pretty} {hour-pretty}:{minute-pretty}",
+            "keyIcon": "\uf073", //  Calendar
+            "keyColor": "#00FFFF"
+        },
+        {
+            "type": "packages",
+            "key": "Packages",
+            "keyIcon": "\ue3d6", // 󰏖 Package
+            "keyColor": "#00FFFF"
+        },
+        {
+            "type": "shell",
+            "key": "Shell",
+            "keyIcon": "\uf249", //  Terminal
+            "keyColor": "#00FFFF"
+        },
+        // Retro Separator 2 - HARDWARE
+        {
+            "type": "custom",
+            "format": "\u001b[34m══════「 \u001b[96m HARDWARE\u001b[34m 」════════════════\u001b[0m"
+        },
+        {
+            "type": "host",
+            "key": "Host",
+            "keyIcon": "\uf108", //  Desktop
+            "keyColor": "#00FFFF"
+        },
+        {
+            "type": "board",
+            "key": "Board",
+            "keyIcon": "\uf2db", //  Microchip
+            "keyColor": "#00FFFF"
+        },
+        {
+            "type": "bios",
+            "key": "BIOS",
+            "keyIcon": "\ue30f", //  Chip
+            "keyColor": "#00FFFF"
+        },
+        {
+            "type": "cpu",
+            "key": "CPU",
+            "format": "{name}",
+            "keyIcon": "\uf85a", //  CPU
+            "keyColor": "#00FFFF"
+        },
+        {
+            "type": "cpuusage",
+            "key": "CPU Usage",
+            "format": "{avg}",
+            "keyIcon": "\uf85a", //  CPU
+            "keyColor": "#00FFFF"
+        },
+        {
+            "type": "loadavg",
+            "key": "Load Avg",
+            "keyIcon": "\uf4f7", //  Chart
+            "keyColor": "#00FFFF"
+        },
+        {
+            "type": "gpu",
+            "key": "GPU",
+            "format": "{name}",
+            "keyIcon": "\ufc32", // 󰾲 GPU
+            "keyColor": "#00FFFF"
+        },
+        {
+            "type": "memory",
+            "key": "Memory",
+            "format": "{used} / {total} ({percentage})",
+            "keyIcon": "\uefff", //  Memory
+            "keyColor": "#00FFFF"
+        },
+        {
+            "type": "disk",
+            "folders": "/",
+            "key": "Root Disk",
+            "format": "{size-used} / {size-total} ({size-percentage})",
+            "keyIcon": "\uf0a0", //  Hard Disk
+            "keyColor": "#00FFFF"
+        },
+        // Retro Separator 3 - NETWORK
+        {
+            "type": "custom",
+            "format": "\u001b[34m══════「 \u001b[96m NETWORK\u001b[34m 」═══════════════════\u001b[0m"
+        },
+        {
+            "type": "localip",
+            "key": "Local IP",
+            "keyIcon": "\ufc5f", // 󰩟 Network
+            "keyColor": "#00FFFF"
+        },
+        {
+            "type": "publicip",
+            "key": "Public IP",
+            "keyIcon": "\ufc60", // 󰩠 Cloud
+            "keyColor": "#00FFFF"
+        },
+        {
+            "type": "dns",
+            "key": "DNS",
+            "keyIcon": "\uf789", // 󰒉 Server
+            "keyColor": "#00FFFF"
+        },
+        // Retro Separator 4 - UI
+        {
+            "type": "custom",
+            "format": "\u001b[34m════════「 \u001b[96m UI\u001b[34m 」════════════════════\u001b[0m"
+        },
+        {
+            "type": "de",
+            "key": "DE",
+            "keyIcon": "\uf2d0", //  Desktop
+            "keyColor": "#00FFFF"
+        },
+        {
+            "type": "wm",
+            "key": "WM",
+            "keyIcon": "\uf085", //  Window Manager
+            "keyColor": "#00FFFF"
+        },
+        {
+            "type": "editor",
+            "key": "Editor",
+            "keyIcon": "\uf15c", //  File
+            "keyColor": "#00FFFF"
+        },
+        {
+            "type": "terminal",
+            "key": "Terminal",
+            "keyIcon": "\ue795", //  Terminal
+            "keyColor": "#00FFFF"
+        },
+        {
+            "type": "theme",
+            "key": "Theme",
+            "keyIcon": "\ufc36", // 󰎶 Palette
+            "keyColor": "#00FFFF"
+        },
+        {
+            "type": "icons",
+            "key": "Icons",
+            "keyIcon": "\uf978", // 󰽸 Folder
+            "keyColor": "#00FFFF"
+        },
+        {
+            "type": "terminalfont",
+            "key": "Font",
+            "keyIcon": "\uf7b1", // 󰞱 Font
+            "keyColor": "#00FFFF"
+        },
+        // Retro Separator 5
+        {
+            "type": "custom",
+            "format": "\u001b[34m════════════════════════════════════════\u001b[0m"
+        },
+        "break",
+        "colors"
+    ]
+}

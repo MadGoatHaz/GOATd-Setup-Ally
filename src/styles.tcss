@@ -45,7 +45,7 @@ $border-subtle-light: #708090;
 }
 
 .left-panel {
-    width: 50%;
+    width: 1fr;
     height: 100%;
     padding: 1;
     border-right: solid $secondary;
@@ -56,7 +56,7 @@ $border-subtle-light: #708090;
 }
 
 .right-panel {
-    width: 50%;
+    width: 1fr;
     height: 100%;
     padding: 1;
 }
@@ -203,6 +203,14 @@ AppInstaller {
     height: 1fr;
 }
 
+AppInstaller .left-panel {
+    width: 3fr;
+}
+
+AppInstaller .right-panel {
+    width: 1fr;
+}
+
 #app_selection {
     height: 1fr;
     border: solid $secondary;
@@ -317,6 +325,14 @@ SystemConfig {
     height: 1fr;
 }
 
+SystemConfig .left-panel {
+    width: 3fr;
+}
+
+SystemConfig .right-panel {
+    width: 1fr;
+}
+
 #task_log {
     height: 1fr;
     border: solid $secondary;
@@ -368,19 +384,40 @@ PrinterSetup {
    border-right: solid $secondary-light;
 }
 
+.list-container {
+   height: 1fr;
+   border: solid $secondary;
+   margin-bottom: 1;
+   padding: 0 1;
+}
+
+.light-mode .list-container {
+    border: solid $secondary-light;
+}
+
+.button-row {
+    height: auto;
+    margin-top: 1;
+    align: center middle;
+}
+
+.button-row Button {
+    width: 1fr;
+    margin: 0 1;
+}
+
 #right_panel {
    width: 50%;
    height: 100%;
    padding: 1;
 }
 
-#installed_printers_list {
+#installed_printers_list, #configured_scanners_list {
    height: 1fr;
    border: solid $primary;
-   margin-bottom: 1;
 }
 
-.light-mode #installed_printers_list {
+.light-mode #installed_printers_list, .light-mode #configured_scanners_list {
    border: solid $primary-light;
 }
 
@@ -455,7 +492,7 @@ PrinterSetup {
 }
 
 #printer_log {
-    height: 1fr;
+    height: 12;
     border: solid $secondary;
     background: $bg-surface;
     color: $accent;
@@ -606,4 +643,262 @@ SelectionList ListItem.--highlighted .selection-list--button-selected {
 .light-mode SelectionList ListItem.--highlighted .selection-list--button-selected {
     background: $primary-hover-light;
     color: $text-inverse-light;
+}
+
+/* ========================================================================== */
+/* GOATFETCH SCREEN STYLES                                                    */
+/* ========================================================================== */
+
+GoatFetchScreen {
+    align: center middle;
+}
+
+#goatfetch-container {
+    width: 90%;
+    height: 80%;
+    border: tall $secondary;
+    background: $bg-surface;
+    padding: 1 2;
+}
+
+.light-mode #goatfetch-container {
+    border: tall $secondary-light;
+    background: $bg-surface-light;
+}
+
+#preview-log {
+    margin-top: 1;
+    background: #000000 !important;
+    color: #ffffff !important;
+    text-style: none !important;
+    scrollbar-background: #000000 !important;
+    scrollbar-color: #333333 #000000 !important;
+    tint: 0% !important;
+}
+
+.light-mode #preview-log {
+    background: #000000 !important;
+    color: #ffffff !important;
+    text-style: none !important;
+    scrollbar-background: #000000 !important;
+    scrollbar-color: #333333 #000000 !important;
+    tint: 0% !important;
+}
+
+#goatfetch-title {
+    text-align: center;
+    text-style: bold;
+    width: 100%;
+    border-bottom: solid $border-subtle;
+    margin-bottom: 1;
+    color: $text-main;
+}
+
+.light-mode #goatfetch-title {
+    border-bottom: solid $border-subtle-light;
+    color: $text-main-light;
+}
+
+#variant-select {
+    margin-bottom: 1;
+}
+
+#actions {
+    margin-top: 1;
+    height: auto;
+    width: 100%;
+}
+
+#action-bar {
+    layout: horizontal;
+    height: auto;
+    width: 100%;
+    margin-top: 1;
+}
+
+#install-btn, #revert-btn, #preview-btn {
+    width: 1fr;
+    margin-right: 1;
+}
+
+#preview-btn {
+    background: $primary;
+    margin-bottom: 1;
+}
+
+.light-mode #preview-btn {
+    background: $primary-light;
+}
+
+#revert-btn {
+    background: $error;
+    margin-right: 0;
+}
+
+.light-mode #revert-btn {
+    background: $error-light;
+}
+
+#close-btn {
+    width: 100%;
+    margin-top: 1;
+    background: $secondary;
+    color: $bg-main;
+}
+
+.light-mode #close-btn {
+    background: $secondary-light;
+    color: $bg-main-light;
+}
+/* ========================================================================== */
+/* APP INSTALLER NEW STYLES (DataTable & Modal)                               */
+/* ========================================================================== */
+
+/* DataTable Styling */
+#app_table {
+    background: $bg-surface;
+    border: solid $secondary;
+    height: 1fr;
+    scrollbar-background: $bg-surface;
+    scrollbar-color: $secondary;
+}
+
+.light-mode #app_table {
+    background: $bg-surface-light;
+    border: solid $secondary-light;
+    scrollbar-background: $bg-surface-light;
+    scrollbar-color: $secondary-light;
+}
+
+DataTable > .datatable--header {
+    background: $bg-surface-hover;
+    color: $secondary;
+    text-style: bold;
+}
+
+.light-mode DataTable > .datatable--header {
+    background: $bg-surface-hover-light;
+    color: $secondary-light;
+}
+
+DataTable > .datatable--cursor {
+    background: $primary;
+    color: $text-inverse;
+}
+
+.light-mode DataTable > .datatable--cursor {
+    background: $primary-light;
+    color: $text-inverse-light;
+}
+
+/* App Description Modal */
+AppDescriptionScreen {
+    align: center middle;
+    background: rgba(0, 0, 0, 0.7); /* Semi-transparent background */
+}
+
+#app_desc_container {
+    width: 50%;
+    height: auto;
+    max-height: 80%;
+    border: tall $secondary;
+    background: $bg-surface;
+    padding: 1 2;
+}
+
+.light-mode #app_desc_container {
+    border: tall $secondary-light;
+    background: $bg-surface-light;
+}
+
+#app_desc_title {
+    text-align: center;
+    text-style: bold;
+    width: 100%;
+    border-bottom: solid $border-subtle;
+    margin-bottom: 1;
+    color: $accent;
+}
+
+.light-mode #app_desc_title {
+    border-bottom: solid $border-subtle-light;
+    color: $accent-light;
+}
+
+#app_desc_grid {
+    layout: grid;
+    grid-size: 2;
+    grid-columns: auto 1fr;
+    grid-rows: auto auto auto auto;
+    margin-bottom: 1;
+}
+
+.desc-label {
+    text-style: bold;
+    padding-right: 1;
+    color: $secondary;
+}
+
+.light-mode .desc-label {
+    color: $secondary-light;
+}
+
+.desc-value {
+    color: $text-main;
+}
+
+.light-mode .desc-value {
+    color: $text-main-light;
+}
+
+.desc-label-header {
+    text-style: bold;
+    margin-top: 1;
+    color: $secondary;
+    width: 100%;
+}
+
+.light-mode .desc-label-header {
+    color: $secondary-light;
+}
+
+#app_desc_text_container {
+    height: 10; /* Fixed height for scrollable description */
+    border: solid $border-subtle;
+    background: $bg-main;
+    padding: 1;
+    margin-bottom: 1;
+}
+
+.light-mode #app_desc_text_container {
+    border: solid $border-subtle-light;
+    background: $bg-main-light;
+}
+
+#app_desc_text {
+    width: 100%;
+}
+
+#app_desc_actions {
+    height: auto;
+    align: center middle;
+}
+
+#close_desc_btn {
+    width: 20;
+    background: $secondary; /* Use secondary color for close action */
+}
+
+.light-mode #close_desc_btn {
+    background: $secondary-light;
+}
+
+#app_list_instructions {
+    text-align: center;
+    color: $text-muted;
+    padding-bottom: 1;
+}
+
+.light-mode #app_list_instructions {
+    color: $text-muted-light;
 }

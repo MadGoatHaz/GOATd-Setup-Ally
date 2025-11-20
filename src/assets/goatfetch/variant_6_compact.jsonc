@@ -1,0 +1,195 @@
+{
+    "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
+    "logo": {
+        "source": "LOGO_SOURCE_PLACEHOLDER",
+        "type": "LOGO_TYPE_PLACEHOLDER",
+        "color": {
+            "1": "yellow",
+            "2": "magenta"
+        },
+        "padding": {
+            "top": 1,
+            "left": 2
+        }
+    },
+    "display": {
+        "separator": ": ",
+        "color": {
+            "keys": "magenta",
+            "title": "magenta",
+            "output": "blue"
+        }
+    },
+    "modules": [
+        "title",
+        {
+            "type": "custom",
+            "format": "\u001b[1;33mThis machine has been GOAT'd\u001b[0m"
+        },
+        {
+            "type": "custom",
+            "format": "\u001b[33m--- Hardware ---\u001b[0m"
+        },
+        {
+            "type": "host",
+            "key": "Hst"
+        },
+        {
+            "type": "cpu",
+            "key": "CPU"
+        },
+        {
+            "type": "gpu",
+            "key": "GPU"
+        },
+        {
+            "type": "disk",
+            "key": "Dsk"
+        },
+        {
+            "type": "memory",
+            "key": "Mem"
+        },
+        {
+            "type": "swap",
+            "key": "Swp"
+        },
+        {
+            "type": "display",
+            "key": "Dsp"
+        },
+        {
+            "type": "battery",
+            "key": "Bat"
+        },
+        {
+            "type": "poweradapter",
+            "key": "Pwr"
+        },
+        {
+            "type": "bluetooth",
+            "key": "Blu"
+        },
+        {
+            "type": "sound",
+            "key": "Snd"
+        },
+        {
+            "type": "custom",
+            "format": "\u001b[33m--- Software ---\u001b[0m"
+        },
+        {
+            "type": "os",
+            "key": "OS "
+        },
+        {
+            "type": "kernel",
+            "key": "Krn"
+        },
+        {
+            "type": "uptime",
+            "key": "Up "
+        },
+        {
+            "type": "processes",
+            "key": "Prc"
+        },
+        {
+            "type": "packages",
+            "key": "Pkg"
+        },
+        {
+            "type": "shell",
+            "key": "Sh "
+        },
+        {
+            "type": "de",
+            "key": "DE "
+        },
+        {
+            "type": "wm",
+            "key": "WM "
+        },
+        {
+            "type": "wmtheme",
+            "key": "WTm"
+        },
+        {
+            "type": "theme",
+            "key": "Thm"
+        },
+        {
+            "type": "icons",
+            "key": "Ico"
+        },
+        {
+            "type": "font",
+            "key": "Fnt"
+        },
+        {
+            "type": "cursor",
+            "key": "Cur"
+        },
+        {
+            "type": "terminal",
+            "key": "Trm"
+        },
+        {
+            "type": "terminalfont",
+            "key": "TFt"
+        },
+        {
+            "type": "vulkan",
+            "key": "Vul"
+        },
+        {
+            "type": "opengl",
+            "key": "OGL"
+        },
+        {
+            "type": "opencl",
+            "key": "OCL"
+        },
+        {
+            "type": "custom",
+            "format": "\u001b[33m--- Network/Misc ---\u001b[0m"
+        },
+        {
+            "type": "localip",
+            "key": "LIP"
+        },
+        {
+            "type": "publicip",
+            "key": "PIP"
+        },
+        {
+            "type": "wifi",
+            "key": "Wfi"
+        },
+        {
+            "type": "weather",
+            "location": "UserLocationPlaceholder",
+            "key": "Wth"
+        },
+        {
+            "type": "netio",
+            "key": "I/O"
+        },
+        {
+            "type": "player",
+            "key": "Ply"
+        },
+        {
+            "type": "media",
+            "key": "Mda"
+        },
+        {
+            "type": "datetime",
+            "key": "Tim"
+        },
+        {
+            "type": "users",
+            "key": "Usr"
+        }
+    ]
+}

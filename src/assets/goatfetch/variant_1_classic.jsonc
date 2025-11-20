@@ -1,0 +1,92 @@
+{
+    "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
+    "logo": {
+        "source": "LOGO_SOURCE_PLACEHOLDER",
+        "type": "LOGO_TYPE_PLACEHOLDER",
+        "color": {
+            "1": "cyan",
+            "2": "magenta"
+        },
+        "padding": {
+            "top": 1,
+            "left": 2
+        }
+    },
+    "display": {
+        "separator": " : ",
+        "color": {
+            "keys": "cyan",
+            "title": "cyan",
+            "output": "light_magenta"
+        }
+    },
+    "modules": [
+        "title",
+        "separator",
+        {
+            "type": "custom",
+            "format": "\u001b[1;35mThis machine has been GOAT'd\u001b[0m"
+        },
+        "break",
+        {
+            "type": "custom",
+            "format": "\u001b[1;34m[ Hardware ]\u001b[0m"
+        },
+        "host",
+        "cpu",
+        "gpu",
+        "memory",
+        "swap",
+        "disk",
+        "display",
+        "battery",
+        "poweradapter",
+        "bluetooth",
+        "sound",
+        "break",
+        {
+            "type": "custom",
+            "format": "\u001b[1;34m[ Software ]\u001b[0m"
+        },
+        "os",
+        "kernel",
+        "uptime",
+        "processes",
+        "packages",
+        "shell",
+        "de",
+        "wm",
+        "wmtheme",
+        "theme",
+        "icons",
+        "font",
+        "cursor",
+        "terminal",
+        "terminalfont",
+        "vulkan",
+        "opengl",
+        "opencl",
+        "break",
+        {
+            "type": "custom",
+            "format": "\u001b[1;34m[ Network ]\u001b[0m"
+        },
+        "localip",
+        "publicip",
+        "wifi",
+        {
+            "type": "weather",
+            "location": "UserLocationPlaceholder"
+        },
+        "netio",
+        "break",
+        {
+            "type": "custom",
+            "format": "\u001b[1;34m[ Media & Misc ]\u001b[0m"
+        },
+        "player",
+        "media",
+        "datetime",
+        "users"
+    ]
+}

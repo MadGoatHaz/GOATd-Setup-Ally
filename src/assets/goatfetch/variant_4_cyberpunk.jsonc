@@ -1,0 +1,205 @@
+{
+    "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
+    "logo": {
+        "source": "LOGO_SOURCE_PLACEHOLDER",
+        "type": "LOGO_TYPE_PLACEHOLDER",
+        "color": {
+            "1": "magenta",
+            "2": "green"
+        },
+        "padding": {
+            "top": 1,
+            "left": 2
+        }
+    },
+    "display": {
+        "separator": " \u001b[33m=>\u001b[0m ",
+        "color": {
+            "keys": "magenta",
+            "title": "magenta",
+            "output": "light_magenta"
+        },
+        "brightColor": true
+    },
+    "modules": [
+        "title",
+        "separator",
+        {
+            "type": "custom",
+            "format": "\u001b[1;35mThis machine has been GOAT'd\u001b[0m"
+        },
+        "break",
+        {
+            "type": "custom",
+            "format": "\u001b[1;34m// HARDWARE_LINK\u001b[0m"
+        },
+        {
+            "type": "host",
+            "key": "\u001b[32m//  >> Host \u001b[0m"
+        },
+        {
+            "type": "cpu",
+            "key": "\u001b[32m//  >> CPU  \u001b[0m"
+        },
+        {
+            "type": "gpu",
+            "key": "\u001b[32m//  >> GPU  \u001b[0m"
+        },
+        {
+            "type": "disk",
+            "key": "\u001b[32m//  >> Disk \u001b[0m"
+        },
+        {
+            "type": "memory",
+            "key": "\u001b[32m//  >> RAM  \u001b[0m"
+        },
+        {
+            "type": "swap",
+            "key": "\u001b[32m//  >> Swap \u001b[0m"
+        },
+        {
+            "type": "display",
+            "key": "\u001b[32m//  >> Disp \u001b[0m"
+        },
+        {
+            "type": "battery",
+            "key": "\u001b[32m//  >> Batt \u001b[0m"
+        },
+        {
+            "type": "poweradapter",
+            "key": "\u001b[32m//  >> Pwr  \u001b[0m"
+        },
+        {
+            "type": "bluetooth",
+            "key": "\u001b[32m//  >> Blue \u001b[0m"
+        },
+        {
+            "type": "sound",
+            "key": "\u001b[32m//  >> Snd  \u001b[0m"
+        },
+        "break",
+        {
+            "type": "custom",
+            "format": "\u001b[1;34m// SYSTEM_core\u001b[0m"
+        },
+        {
+            "type": "os",
+            "key": "\u001b[32m//  >> OS   \u001b[0m"
+        },
+        {
+            "type": "kernel",
+            "key": "\u001b[32m//  >> Kern \u001b[0m"
+        },
+        {
+            "type": "uptime",
+            "key": "\u001b[32m//  >> Up   \u001b[0m"
+        },
+        {
+            "type": "processes",
+            "key": "\u001b[32m//  >> Proc \u001b[0m"
+        },
+        {
+            "type": "packages",
+            "key": "\u001b[32m//  >> Pkgs \u001b[0m"
+        },
+        {
+            "type": "shell",
+            "key": "\u001b[32m//  >> Sh   \u001b[0m"
+        },
+        {
+            "type": "de",
+            "key": "\u001b[32m//  >> DE   \u001b[0m"
+        },
+        {
+            "type": "wm",
+            "key": "\u001b[32m//  >> WM   \u001b[0m"
+        },
+        {
+            "type": "wmtheme",
+            "key": "\u001b[32m//  >> WThm \u001b[0m"
+        },
+        {
+            "type": "theme",
+            "key": "\u001b[32m//  >> Theme\u001b[0m"
+        },
+        {
+            "type": "icons",
+            "key": "\u001b[32m//  >> Icon \u001b[0m"
+        },
+        {
+            "type": "font",
+            "key": "\u001b[32m//  >> Font \u001b[0m"
+        },
+        {
+            "type": "cursor",
+            "key": "\u001b[32m//  >> Curs \u001b[0m"
+        },
+        {
+            "type": "terminal",
+            "key": "\u001b[32m//  >> Term \u001b[0m"
+        },
+        {
+            "type": "terminalfont",
+            "key": "\u001b[32m//  >> TFnt \u001b[0m"
+        },
+        {
+            "type": "vulkan",
+            "key": "\u001b[32m//  >> Vulk \u001b[0m"
+        },
+        {
+            "type": "opengl",
+            "key": "\u001b[32m//  >> GL   \u001b[0m"
+        },
+        {
+            "type": "opencl",
+            "key": "\u001b[32m//  >> CL   \u001b[0m"
+        },
+        "break",
+        {
+            "type": "custom",
+            "format": "\u001b[1;34m// NET_interface\u001b[0m"
+        },
+        {
+            "type": "localip",
+            "key": "\u001b[32m//  >> IP   \u001b[0m"
+        },
+        {
+            "type": "publicip",
+            "key": "\u001b[32m//  >> Pub  \u001b[0m"
+        },
+        {
+            "type": "wifi",
+            "key": "\u001b[32m//  >> WiFi \u001b[0m"
+        },
+        {
+            "type": "weather",
+            "location": "UserLocationPlaceholder",
+            "key": "\u001b[32m//  >> Wthr \u001b[0m"
+        },
+        {
+            "type": "netio",
+            "key": "\u001b[32m//  >> I/O  \u001b[0m"
+        },
+        "break",
+        {
+            "type": "custom",
+            "format": "\u001b[1;34m// MEDIA_data\u001b[0m"
+        },
+        {
+            "type": "player",
+            "key": "\u001b[32m//  >> Play \u001b[0m"
+        },
+        {
+            "type": "media",
+            "key": "\u001b[32m//  >> Song \u001b[0m"
+        },
+        {
+            "type": "datetime",
+            "key": "\u001b[32m//  >> Time \u001b[0m"
+        },
+        {
+            "type": "users",
+            "key": "\u001b[32m//  >> User \u001b[0m"
+        }
+    ]
+}
