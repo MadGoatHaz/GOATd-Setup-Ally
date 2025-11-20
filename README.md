@@ -16,7 +16,7 @@ GOAT'd - Setup Ally is a unified, portable post-install tool designed for Arch L
 
 *   **System Tasks**:
     *   **Smart Firewall Management**: Auto-detect required ports for installed apps (Steam, KDE Connect, etc.) and review rules before applying.
-    *   **Glass Box Transparency**: Every operation is previewed. Double-click any task to see the exact command or configuration details before execution.
+    *   **Glass Box Transparency**: Every operation is previewed. Click any task to see the exact command or configuration details before execution.
     *   **Granular Control**: Use "Select/Deselect All" or toggle individual tasks to decide exactly what runs on your system.
     ![Tasks Screenshot](docs/Img/Tasks%20Screenshot.png)
 
@@ -40,6 +40,15 @@ To run GOAT'd - Setup Ally, simply execute the wrapper script from the terminal:
 chmod +x goatd.sh
 ./goatd.sh
 ```
+
+## Support the Project
+
+If you find this tool useful, consider supporting its development!
+
+*   [![GitHub Sponsors](https://img.shields.io/badge/Sponsor-GitHub-ea4aaa?style=for-the-badge&logo=github)](https://github.com/sponsors/MadGoatHaz)
+*   [![PayPal](https://img.shields.io/badge/Donate-PayPal-00457C?style=for-the-badge&logo=paypal)](https://www.paypal.com/paypalme/garretthazlett)
+
+**Policy**: Donations support development. If you donate to the app, any feature requests you have will be pushed to the top of the request list based upon the donation amount.
 
 ## Disclaimer & Feedback
 
