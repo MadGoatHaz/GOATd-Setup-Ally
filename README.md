@@ -8,19 +8,29 @@ GOAT'd - Setup Ally is a unified, portable post-install tool designed for Arch L
 
 ## Key Features
 
-*   **Smart Firewall Management**:
-    *   **Auto-Detection**: Intelligently scans your installed applications to identify required ports (e.g., Steam, KDE Connect, OBS).
-    *   **Granular Control**: Review detected rules and toggle them individually before applying. You decide exactly what opens up.
-*   **Transparency First**:
-    *   **"Glass Box" Design**: Every operation is previewed. Whether installing a package or writing a config file, you see the exact command or file content before execution.
-    *   **Real-time Logging**: Watch operations happen step-by-step in the integrated log viewer.
-*   **Intelligent Package Handling**:
-    *   **AUR Auto-Detection**: Automatically detects and uses your preferred AUR helper (`paru`, `yay`, `trizen`, `pikaur`, or `aura`).
+*   **Apps Management**:
     *   **Smart App Installer**: Browse categories, see what's already installed, and batch install/uninstall with ease.
+    *   **Select/Deselect All**: Quickly manage bulk selections for efficient package handling.
+    *   **Safe Uninstall**: The "Uninstall Selected" feature includes built-in safety checks to prevent accidental removal of critical system components.
+    ![Apps Screenshot](docs/Img/Apps%20Screenshot.png)
+
+*   **System Tasks**:
+    *   **Smart Firewall Management**: Auto-detect required ports for installed apps (Steam, KDE Connect, etc.) and review rules before applying.
+    *   **Glass Box Transparency**: Every operation is previewed. Double-click any task to see the exact command or configuration details before execution.
+    *   **Granular Control**: Use "Select/Deselect All" or toggle individual tasks to decide exactly what runs on your system.
+    ![Tasks Screenshot](docs/Img/Tasks%20Screenshot.png)
+
+*   **Printers**:
+    *   **Automated Discovery**: Scans for IPP/DNSSD printers on your network.
+    *   **Universal Driver Search**: Automatically queries the AUR for compatible drivers to get your printer setup without the headache.
+    ![Printers Screenshot](docs/Img/Printers%20Screenshot.png)
+
 *   **GoatFetch**:
-    *   A built-in, interactive configuration tool for FastFetch. Browse themes, customize layouts, and make your terminal your own.
-*   **Printer Wizard**:
-    *   Automated discovery (IPP/DNSSD) and universal driver search (AUR query) to get your printer working without the headache.
+    *   **Auto-Detection**: Automatically checks for `fastfetch` and prompts for installation if missing.
+    *   **Interactive Config**: Browse themes, customize layouts, and make your terminal your own with a built-in configuration tool.
+
+*   **Transparency First**:
+    *   **Real-time Logging**: Watch operations happen step-by-step in the integrated log viewer.
 
 ## Usage
 

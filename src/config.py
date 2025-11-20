@@ -283,6 +283,10 @@ class SystemConfig(Horizontal):
             yield Label("Click checkbox to toggle. Click name for details.", classes="instruction_label")
             
             # Replaced SelectionList with DataTable
+            with Horizontal(classes="selection-buttons"):
+                yield Button("Select All", id="btn_config_select_all", variant="primary")
+                yield Button("Deselect All", id="btn_config_deselect_all", variant="error")
+
             yield DataTable(id="config_table", cursor_type="cell")
             
             yield Button("Apply Selected Tasks", variant="primary", id="apply_config_btn")
@@ -337,6 +341,18 @@ class SystemConfig(Horizontal):
                     config['description'],
                     steps=config.get('steps')
                 ))
+
+    @on(Button.Pressed, "#btn_config_select_all")
+    def select_all_configs(self):
+        table = self.query_one("#config_table", DataTable)
+        for row_key in table.rows:
+            table.update_cell(row_key, "Select", r"\[x]")
+
+    @on(Button.Pressed, "#btn_config_deselect_all")
+    def deselect_all_configs(self):
+        table = self.query_one("#config_table", DataTable)
+        for row_key in table.rows:
+            table.update_cell(row_key, "Select", r"\[ ]")
 
     @on(Button.Pressed, "#apply_config_btn")
     def apply_selected(self):

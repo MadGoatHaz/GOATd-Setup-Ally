@@ -227,19 +227,20 @@ AppInstaller .right-panel {
 
 #app_actions {
     height: auto;
+    min-height: 3;
     margin-top: 1;
 }
 
-#install_btn, #uninstall_btn {
+#app_install_btn, #app_uninstall_btn {
     width: 1fr;
     margin: 0 1;
 }
 
-#uninstall_btn {
+#app_uninstall_btn {
     background: $error;
 }
 
-.light-mode #uninstall_btn {
+.light-mode #app_uninstall_btn {
     background: $error-light;
 }
 
@@ -699,6 +700,19 @@ GoatFetchScreen {
     color: $text-main-light;
 }
 
+/* Selection Buttons Group */
+.selection-buttons {
+    height: auto;
+    min-height: 3;
+    margin-bottom: 1;
+    align: center middle;
+}
+
+.selection-buttons Button {
+    margin: 0 1;
+    width: 1fr;
+}
+
 #variant-select {
     margin-bottom: 1;
 }
@@ -901,4 +915,154 @@ AppDescriptionScreen {
 
 .light-mode #app_list_instructions {
     color: $text-muted-light;
+}
+/* ========================================================================== */
+/* UNINSTALL MODAL STYLES                                                     */
+/* ========================================================================== */
+
+UninstallConfirmationScreen {
+    align: center middle;
+    background: rgba(0, 0, 0, 0.8);
+}
+
+#uninstall_confirm_container {
+    width: 50%;
+    height: auto;
+    border: tall $error;
+    background: $bg-surface;
+    padding: 1 2;
+}
+
+.light-mode #uninstall_confirm_container {
+    border: tall $error-light;
+    background: $bg-surface-light;
+}
+
+#uninstall_confirm_title {
+    text-align: center;
+    text-style: bold;
+    width: 100%;
+    margin-bottom: 2;
+    color: $error;
+}
+
+.light-mode #uninstall_confirm_title {
+    color: $error-light;
+}
+
+#uninstall_confirm_actions {
+    height: auto;
+    align: center middle;
+    margin-top: 1;
+}
+
+#uninstall_confirm_actions Button {
+    margin: 0 1;
+    width: 1fr;
+}
+
+/* Safety Screen */
+UninstallSafetyScreen {
+    align: center middle;
+    background: rgba(50, 0, 0, 0.9);
+}
+
+#uninstall_safety_container {
+    width: 60%;
+    height: auto;
+    border: tall $error;
+    background: $bg-surface;
+    padding: 2;
+}
+
+.light-mode #uninstall_safety_container {
+    border: tall $error-light;
+    background: $bg-surface-light;
+}
+
+.danger-title {
+    text-align: center;
+    text-style: bold;
+    color: red;
+    margin-bottom: 1;
+    background: #300000;
+    padding: 1;
+}
+
+.light-mode .danger-title {
+    background: #ffd0d0;
+    color: #8b0000;
+}
+
+.danger-instruction {
+    text-align: center;
+    margin-bottom: 1;
+    width: 100%;
+    height: auto;
+}
+
+#safety_input {
+    border: solid $error;
+    margin-bottom: 2;
+    text-align: center;
+}
+
+.light-mode #safety_input {
+    border: solid $error-light;
+}
+
+#uninstall_safety_actions {
+    height: auto;
+    align: center middle;
+}
+
+#uninstall_safety_actions Button {
+    margin: 0 1;
+    width: 1fr;
+}
+
+/* FastFetch Missing Modal */
+FastFetchMissingScreen {
+    align: center middle;
+    background: rgba(0, 0, 0, 0.8);
+}
+
+#fastfetch_missing_container {
+    width: 50%;
+    height: auto;
+    border: tall $secondary;
+    background: $bg-surface;
+    padding: 1 2;
+}
+
+.light-mode #fastfetch_missing_container {
+    border: tall $secondary-light;
+    background: $bg-surface-light;
+}
+
+#ff_missing_title {
+    text-align: center;
+    text-style: bold;
+    width: 100%;
+    margin-bottom: 1;
+    color: $error;
+}
+
+.light-mode #ff_missing_title {
+    color: $error-light;
+}
+
+#ff_missing_text {
+    text-align: center;
+    margin-bottom: 2;
+}
+
+#ff_missing_actions {
+    height: auto;
+    align: center middle;
+}
+
+#ff_missing_actions Button {
+    margin: 0 1;
+    width: 1fr;
 }

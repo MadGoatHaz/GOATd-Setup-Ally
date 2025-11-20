@@ -6,6 +6,7 @@ from textual.containers import Vertical, Horizontal, Grid, ScrollableContainer
 from textual.screen import ModalScreen
 from textual import on, work
 from textual.binding import Binding
+from goatfetch_ui import UninstallConfirmationScreen, UninstallSafetyScreen
 
 # Application Definitions (New Structure)
 APPS_CATEGORIES = {
@@ -182,14 +183,18 @@ class AppInstaller(Horizontal):
             yield Label("Click name for details. Click [x] to select.", id="app_list_instructions")
             
             # Replaced SelectionList with DataTable
+            with Horizontal(classes="selection-buttons"):
+                yield Button("Select All", id="btn_app_select_all", variant="primary")
+                yield Button("Deselect All", id="btn_app_deselect_all", variant="error")
+
             yield DataTable(id="app_table", cursor_type="cell")
             
             yield Label("", id="install_status")
             yield ProgressBar(total=100, show_eta=False, id="install_progress")
             
             with Horizontal(id="app_actions"):
-                yield Button("Install Selected", variant="primary", id="install_btn")
-                yield Button("Uninstall Selected", variant="error", id="uninstall_btn")
+                yield Button("Install Selected", variant="primary", id="app_install_btn")
+                yield Button("Uninstall Selected", variant="error", id="app_uninstall_btn")
 
         # Right Panel: Logs
         with Vertical(classes="right-panel"):
@@ -201,7 +206,12 @@ class AppInstaller(Horizontal):
         
         # Configure DataTable
         table = self.query_one("#app_table", DataTable)
-        table.add_columns("Select", "Name", "Category", "Source", "Tier", "Status")
+        table.add_column("Select", key="Select")
+        table.add_column("Name", key="Name")
+        table.add_column("Category", key="Category")
+        table.add_column("Source", key="Source")
+        table.add_column("Tier", key="Tier")
+        table.add_column("Status", key="Status")
         
         # Populate data
         self.run_worker(self.refresh_app_status(), exclusive=True)
@@ -279,7 +289,18 @@ class AppInstaller(Horizontal):
             
             if app_data:
                  self.app.push_screen(AppDescriptionScreen(app_data))
-    
+
+    @on(Button.Pressed, "#btn_app_select_all")
+    def select_all_apps(self):
+        table = self.query_one("#app_table", DataTable)
+        for row_key in table.rows:
+            table.update_cell(row_key, "Select", r"\[x]")
+
+    @on(Button.Pressed, "#btn_app_deselect_all")
+    def deselect_all_apps(self):
+        table = self.query_one("#app_table", DataTable)
+        for row_key in table.rows:
+            table.update_cell(row_key, "Select", r"\[ ]")
 
     async def get_installed_packages(self) -> set[str]:
         """Return a set of all installed packages (pacman + yay)."""
@@ -296,7 +317,7 @@ class AppInstaller(Horizontal):
             pass
         return set()
 
-    @on(Button.Pressed, "#install_btn")
+    @on(Button.Pressed, "#app_install_btn")
     def install_selected(self):
         table = self.query_one("#app_table", DataTable)
         selected_pkgs = []
@@ -312,13 +333,13 @@ class AppInstaller(Horizontal):
             self.log_message("[yellow]No applications selected for installation.[/yellow]")
             return
 
-        self.query_one("#install_btn", Button).disabled = True
-        self.query_one("#uninstall_btn", Button).disabled = True
+        self.query_one("#app_install_btn", Button).disabled = True
+        self.query_one("#app_uninstall_btn", Button).disabled = True
         self.query_one("#install_progress", ProgressBar).display = True
         
         self.run_worker(self.run_installation(selected_pkgs), exclusive=True)
 
-    @on(Button.Pressed, "#uninstall_btn")
+    @on(Button.Pressed, "#app_uninstall_btn")
     def uninstall_selected(self):
         table = self.query_one("#app_table", DataTable)
         selected_pkgs = []
@@ -332,11 +353,20 @@ class AppInstaller(Horizontal):
             self.log_message("[yellow]No applications selected for uninstall.[/yellow]")
             return
 
-        self.query_one("#install_btn", Button).disabled = True
-        self.query_one("#uninstall_btn", Button).disabled = True
-        self.query_one("#install_progress", ProgressBar).display = True
-        
-        self.run_worker(self.run_uninstallation(selected_pkgs), exclusive=True)
+        # Push confirmation screen
+        def check_confirm(confirmed):
+            if confirmed:
+                # Push safety screen
+                def check_safety(safe):
+                    if safe:
+                        self.query_one("#app_install_btn", Button).disabled = True
+                        self.query_one("#app_uninstall_btn", Button).disabled = True
+                        self.query_one("#install_progress", ProgressBar).display = True
+                        self.run_worker(self.run_uninstallation(selected_pkgs), exclusive=True)
+                
+                self.app.push_screen(UninstallSafetyScreen(), check_safety)
+
+        self.app.push_screen(UninstallConfirmationScreen(len(selected_pkgs)), check_confirm)
 
     async def run_installation(self, selected_pkgs):
         progress_bar = self.query_one("#install_progress", ProgressBar)
@@ -377,8 +407,8 @@ class AppInstaller(Horizontal):
             progress_bar.update(progress=current_step)
 
         status_label.update("Installation complete.")
-        self.query_one("#install_btn", Button).disabled = False
-        self.query_one("#uninstall_btn", Button).disabled = False
+        self.query_one("#app_install_btn", Button).disabled = False
+        self.query_one("#app_uninstall_btn", Button).disabled = False
         progress_bar.display = False
         
         # Refresh list to update status
@@ -425,8 +455,8 @@ class AppInstaller(Horizontal):
 
         progress_bar.update(progress=1)
         status_label.update("Uninstallation complete.")
-        self.query_one("#install_btn", Button).disabled = False
-        self.query_one("#uninstall_btn", Button).disabled = False
+        self.query_one("#app_install_btn", Button).disabled = False
+        self.query_one("#app_uninstall_btn", Button).disabled = False
         progress_bar.display = False
         
         await self.refresh_app_status()

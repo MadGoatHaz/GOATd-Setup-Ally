@@ -1,3 +1,5 @@
+import shutil
+import subprocess
 from textual.screen import Screen, ModalScreen
 from textual.containers import Container, Vertical, Horizontal, ScrollableContainer
 from textual.widgets import Header, Footer, Static, Button, Select, Checkbox, Input, Label, RichLog, DataTable
@@ -5,6 +7,25 @@ from textual.app import ComposeResult
 from textual import on
 from rich.text import Text
 from goatfetch_logic import GoatFetchManager
+
+class FastFetchMissingScreen(ModalScreen):
+    """Screen shown when FastFetch is missing."""
+    def compose(self) -> ComposeResult:
+        with Vertical(id="fastfetch_missing_container"):
+            yield Label("FastFetch is missing!", id="ff_missing_title")
+            yield Label("GoatFetch requires FastFetch to be installed.\nWould you like to install it now?", id="ff_missing_text")
+            
+            with Horizontal(id="ff_missing_actions"):
+                yield Button("Install FastFetch", variant="success", id="btn_ff_install")
+                yield Button("Cancel", variant="error", id="btn_ff_cancel")
+
+    @on(Button.Pressed, "#btn_ff_install")
+    def install_fastfetch(self):
+        self.dismiss(True)
+
+    @on(Button.Pressed, "#btn_ff_cancel")
+    def cancel(self):
+        self.dismiss(False)
 
 class GoatFetchScreen(Screen):
     """Screen for GoatFetch configuration."""
@@ -52,8 +73,34 @@ class GoatFetchScreen(Screen):
         if getattr(self.app, "dark", True) is False:
              self.add_class("light-mode")
         
+        # Check for FastFetch dependency
+        if not shutil.which("fastfetch"):
+            def check_install(should_install):
+                if should_install:
+                    self.install_fastfetch_dependency()
+                else:
+                    self.log_message("[yellow]FastFetch missing. Some features may not work.[/yellow]")
+            
+            self.app.push_screen(FastFetchMissingScreen(), check_install)
+
         # Initial log message
         self.log_message("GoatFetch Configurator Ready.")
+
+    def install_fastfetch_dependency(self):
+        self.log_message("Installing FastFetch...")
+        try:
+            # Using subprocess.Popen to not block main thread entirely if we were async,
+            # but here we are in a sync callback. For a quick install it's okay,
+            # but ideally should be a worker. For simplicity in this context:
+            cmd = ["sudo", "pacman", "-S", "fastfetch", "--noconfirm"]
+            res = subprocess.run(cmd, capture_output=True, text=True)
+            
+            if res.returncode == 0:
+                self.log_message("[green]FastFetch installed successfully.[/green]")
+            else:
+                self.log_message(f"[red]Failed to install FastFetch: {res.stderr}[/red]")
+        except Exception as e:
+            self.log_message(f"[red]Error installing FastFetch: {e}[/red]")
 
     def log_message(self, message):
         """Writes a message to the RichLog."""
@@ -127,6 +174,7 @@ class GoatFetchScreen(Screen):
     @on(Button.Pressed, "#close-btn")
     def close_screen(self):
         self.app.pop_screen()
+
 class TaskDescriptionScreen(ModalScreen):
     BINDINGS = [("escape", "dismiss", "Close")]
 
@@ -209,3 +257,62 @@ class FirewallSelectionScreen(ModalScreen):
     @on(Button.Pressed, "#close_fw_btn")
     def close_screen(self):
         self.dismiss()
+
+class UninstallConfirmationScreen(ModalScreen):
+    """Modal screen to confirm uninstallation."""
+    BINDINGS = [("escape", "cancel", "Cancel")]
+
+    def __init__(self, count):
+        super().__init__()
+        self.count = count
+
+    def compose(self) -> ComposeResult:
+        with Vertical(id="uninstall_confirm_container"):
+            yield Label(f"Are you sure you want to uninstall {self.count} applications?", id="uninstall_confirm_title")
+            with Horizontal(id="uninstall_confirm_actions"):
+                yield Button("Cancel", variant="primary", id="cancel_btn")
+                yield Button("Proceed", variant="error", id="proceed_btn")
+
+    @on(Button.Pressed, "#cancel_btn")
+    def cancel(self):
+        self.dismiss(False)
+
+    @on(Button.Pressed, "#proceed_btn")
+    def proceed(self):
+        self.dismiss(True)
+
+class UninstallSafetyScreen(ModalScreen):
+    """Safety screen for uninstallation (irreversible action)."""
+    BINDINGS = [("escape", "cancel", "Cancel")]
+
+    def compose(self) -> ComposeResult:
+        with Vertical(id="uninstall_safety_container"):
+            yield Label("DANGER: This action is irreversible.", classes="danger-title")
+            
+            warning_text = (
+                "You are about to remove selected applications. This will delete application files "
+                "and may remove personal configuration data.\n\n"
+                "To use these applications again, you will need to reinstall them.\n\n"
+                "Type 'UNINSTALL' to confirm."
+            )
+            yield Label(warning_text, classes="danger-instruction")
+            
+            yield Input(placeholder="UNINSTALL", id="safety_input")
+            with Horizontal(id="uninstall_safety_actions"):
+                yield Button("Cancel", variant="primary", id="cancel_safety_btn")
+                yield Button("Confirm Uninstall", variant="error", id="confirm_uninstall_btn", disabled=True)
+    @on(Input.Changed, "#safety_input")
+    def on_input_changed(self, event: Input.Changed):
+        confirm_btn = self.query_one("#confirm_uninstall_btn", Button)
+        if event.value == "UNINSTALL":
+            confirm_btn.disabled = False
+        else:
+            confirm_btn.disabled = True
+
+    @on(Button.Pressed, "#cancel_safety_btn")
+    def cancel(self):
+        self.dismiss(False)
+
+    @on(Button.Pressed, "#confirm_uninstall_btn")
+    def confirm(self):
+        self.dismiss(True)
