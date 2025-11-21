@@ -2,7 +2,7 @@
 
 **Transparency and Control for your Arch System.**
 
-GOAT'd - Setup Ally is a unified, portable post-install tool designed for Arch Linux and EndeavourOS. This is a personal project sharing my personal scripts. Unlike opaque "magic scripts" that hide what they're doing, GOAT'd is built on a "Glass Box" philosophy. It empowers you to manage applications, system configurations, and hardware setup with full visibility into every command being executed.
+GOAT'd - Setup Ally is a unified, portable post-install tool designed for Arch Linux. This is a personal project sharing my personal scripts. Unlike opaque "magic scripts" that hide what they're doing, GOAT'd is built on a "Glass Box" philosophy. It empowers you to manage applications, system configurations, and hardware setup with full visibility into every command being executed.
 
 > **Note**: This project is currently in **Beta** and under active development. Feedback is welcome!
 
