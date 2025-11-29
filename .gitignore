@@ -9,6 +9,7 @@ venv/
 .venv/
 pip-log.txt
 pip-delete-this-directory.txt
+.pytest_cache/
 
 # Configuration
 config.json
@@ -34,3 +35,4 @@ Thumbs.db
 
 # Project specific
 debug_output.txt
+repro_result.txt

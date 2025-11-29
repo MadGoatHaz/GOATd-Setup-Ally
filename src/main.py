@@ -7,6 +7,7 @@ from textual import on
 from apps import AppInstaller
 from config import SystemConfig
 from printer import PrinterSetup
+from gpu_ui import GPUConfigWidget
 
 CONFIG_FILE = "config.json"
 
@@ -91,6 +92,9 @@ class GOATdApp(App):
             
             with TabPane(title="Printers", id="printer"):
                 yield PrinterSetup()
+
+            with TabPane(title="GPU", id="gpu"):
+                yield GPUConfigWidget()
             
             with TabPane(title="Logs", id="logs"):
                 yield Label("System Logs")

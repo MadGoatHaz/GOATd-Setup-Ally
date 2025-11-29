@@ -28,54 +28,6 @@ def get_installed_packages_sync():
         pass
     return set()
 
-def check_nvidia():
-    return shutil.which("nvidia-smi") is not None
-
-def apply_nvidia():
-    try:
-        # Detect max power
-        result = subprocess.run(["nvidia-smi", "-q", "-d", "POWER"], capture_output=True, text=True)
-        if result.returncode != 0:
-            return "Failed to query nvidia-smi"
-        
-        lines = result.stdout.split('\n')
-        max_power = None
-        for line in lines:
-            if "Max Power Limit" in line:
-                # Example: "        Max Power Limit           : 175.00 W"
-                parts = line.split(':')
-                if len(parts) > 1:
-                    val_str = parts[1].strip().split(' ')[0] # 175.00
-                    max_power = float(val_str)
-                    break
-        
-        if max_power:
-            # Create service file content
-            service_content = f"""[Unit]
-Description=Set NVIDIA Power Limit
-After=multi-user.target
-
-[Service]
-Type=oneshot
-ExecStart=/usr/bin/nvidia-smi -pl {max_power}
-
-[Install]
-WantedBy=multi-user.target
-"""
-            # Write service file (needs sudo)
-            # We use tee to write to a root-owned location
-            subprocess.run(f"echo '{service_content}' | sudo tee /etc/systemd/system/nvidia-power-limit.service", shell=True, check=True, capture_output=True)
-            
-            # Reload daemon and enable
-            subprocess.run(["sudo", "systemctl", "daemon-reload"], check=True, capture_output=True)
-            res = subprocess.run(["sudo", "systemctl", "enable", "--now", "nvidia-power-limit.service"], check=True, capture_output=True, text=True)
-            return f"Nvidia Power Limit set to {max_power}W and service enabled.\n{res.stdout}"
-        else:
-            return "Could not determine Max Power Limit."
-
-    except Exception as e:
-        return f"Error applying Nvidia config: {e}"
-
 def get_firewall_apps_data():
     """Returns a list of detected apps with port requirements."""
     installed_packages = get_installed_packages_sync()
@@ -205,20 +157,6 @@ CONFIGS = [
         "default": True
     },
     {
-        "id": "nvidia_power",
-        "name": "Nvidia Power Limit",
-        "description": "Creates systemd service to set power limit.",
-        "steps": [
-            "Detect Max Power Limit via `nvidia-smi -q -d POWER`",
-            "Creates systemd service to set power limit",
-            "Service file: /etc/systemd/system/nvidia-power-limit.service",
-            "Enable and start the service"
-        ],
-        "check": check_nvidia,
-        "apply": apply_nvidia,
-        "default": False
-    },
-    {
         "id": "firewall_gaming",
         "name": "Firewall",
         "description": "Scans for installed apps and opens specific ports using `firewall-cmd`.",
@@ -270,7 +208,7 @@ CONFIGS = [
         "apply": lambda: "GoatFetch Launched", # Dummy apply
         "default": False,
         "interactive": True
-    }
+    },
 ]
 
 # TaskDescriptionScreen and FirewallSelectionScreen moved to goatfetch_ui.py
@@ -378,8 +316,10 @@ class SystemConfig(Horizontal):
                 
                 if config.get("interactive"):
                     # Launch interactive screen
-                    self.app.push_screen(GoatFetchScreen())
-                    self.log_message("Launched interactive configuration.")
+                    if config['id'] == "goatfetch":
+                        self.app.push_screen(GoatFetchScreen())
+                        
+                    self.log_message(f"Launched interactive configuration for {config['name']}.")
                 else:
                     try:
                         result = config['apply']()

@@ -1,8 +1,9 @@
 import asyncio
 import subprocess
+import re
 from textual.app import ComposeResult
-from textual.widgets import Static, SelectionList, Button, RichLog, ProgressBar, Label, DataTable
-from textual.containers import Vertical, Horizontal, Grid, ScrollableContainer
+from textual.widgets import Static, SelectionList, Button, RichLog, ProgressBar, Label, DataTable, TabbedContent, TabPane, ListView, ListItem
+from textual.containers import Vertical, Horizontal, Grid, ScrollableContainer, VerticalScroll
 from textual.screen import ModalScreen
 from textual import on, work
 from textual.binding import Binding
@@ -68,6 +69,7 @@ APPS_CATEGORIES = {
         "Firejail": {"pkg": "firejail", "source": "pacman", "tier": "Security", "description": "SUID sandbox program to restrict the running environment of applications."},
     },
     "Hardware Control": {
+        "LACT": {"pkg": "lact", "source": "aur", "tier": "Top Tier", "description": "Rust-based GPU control. Post-install: sudo systemctl enable --now lactd"},
         "CoolerControl": {"pkg": "coolercontrol-bin", "source": "aur", "tier": "Top Tier", "description": "GUI to view sensors and control fans/pumps with custom curves."},
         "CoreCtrl": {"pkg": "corectrl", "source": "pacman", "tier": "Pro", "description": "Application to control computer hardware settings (mainly AMD GPUs)."},
         "OpenRGB": {"pkg": "openrgb", "source": "pacman", "tier": "RGB", "description": "RGB lighting control software.", "ports": ["6742/tcp"]},
@@ -109,10 +111,14 @@ APPS_CATEGORIES = {
         "Remmina": {"pkg": "remmina", "source": "pacman", "tier": "Remote", "description": "Remote desktop client. Supports RDP, VNC, SSH, and SPICE protocols."},
     },
     "Gaming": {
+        "MangoHud": {"pkg": "mangohud", "source": "pacman", "tier": "Top Tier", "description": "Vulkan and OpenGL overlay for monitoring FPS, temperatures, CPU/GPU load."},
         "Steam": {"pkg": "steam", "source": "pacman", "tier": "God Tier", "description": "Video game digital distribution service and storefront.", "ports": ["27031/udp", "27036/tcp", "27036/udp", "27037/tcp", "27015/tcp"]},
         "Heroic Launcher": {"pkg": "heroic-games-launcher-bin", "source": "aur", "tier": "Top Tier", "description": "Game launcher for Epic Games and GOG."},
         "Lutris": {"pkg": "lutris", "source": "pacman", "tier": "Utility", "description": "Open gaming platform."},
         "Prism Launcher": {"pkg": "prism-launcher", "source": "pacman", "tier": "Minecraft", "description": "Minecraft launcher with multiple instance support."},
+    },
+    "AI & Creative": {
+        "LM Studio": {"pkg": "lm-studio-appimage", "source": "aur", "tier": "God Tier", "description": "Easy-to-use desktop application for running local LLMs."},
     }
 }
 
@@ -128,6 +134,12 @@ def get_flat_app_list():
             app_copy['id'] = app_details['pkg']
             flat_list.append(app_copy)
     return flat_list
+
+def get_table_id(category):
+    # Strictly sanitize: replace non-alphanumeric chars with _, collapse duplicates, strip ends
+    clean = re.sub(r'[^a-z0-9]', '_', category.lower())
+    clean = re.sub(r'_+', '_', clean).strip('_')
+    return f"table_{clean}"
 
 class AppDescriptionScreen(ModalScreen):
     """Modal screen to show application details."""
@@ -171,116 +183,167 @@ class AppDescriptionScreen(ModalScreen):
 
 class AppInstaller(Horizontal):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super().__init__(id="apps_container", *args, **kwargs)
         # Local import to avoid circular dependency as config imports apps
         from config import detect_aur_helper
         self.aur_helper = detect_aur_helper()
+        self.selected_apps = set() # Stores pkg_ids of selected apps
 
     def compose(self) -> ComposeResult:
-        # Left Panel: App List & Actions
-        with Vertical(classes="left-panel"):
+        # Left Panel: Tabbed Interface
+        with Vertical(id="apps_left_pane"):
             yield Label("Select Applications", id="app_list_title")
-            yield Label("Click name for details. Click [x] to select.", id="app_list_instructions")
+            yield Label("Navigate tabs to find apps. Click [x] to select.", id="app_list_instructions")
             
-            # Replaced SelectionList with DataTable
-            with Horizontal(classes="selection-buttons"):
-                yield Button("Select All", id="btn_app_select_all", variant="primary")
-                yield Button("Deselect All", id="btn_app_deselect_all", variant="error")
+            with Horizontal(id="app_toolbar"):
+                yield Button("<", id="tab_prev", classes="compact")
+                yield Button(">", id="tab_next", classes="compact")
+                yield Label("  ")
+                yield Button("All", id="select_all", classes="compact")
+                yield Button("None", id="deselect_all", classes="compact")
 
-            yield DataTable(id="app_table", cursor_type="cell")
+            with TabbedContent(id="apps_tabs"):
+                for category in APPS_CATEGORIES.keys():
+                    with TabPane(category, id=f"tab_{get_table_id(category)}"):
+                        # Unique ID for each table
+                        table_id = get_table_id(category)
+                        yield DataTable(id=table_id, cursor_type="cell")
             
             yield Label("", id="install_status")
             yield ProgressBar(total=100, show_eta=False, id="install_progress")
             
             with Horizontal(id="app_actions"):
-                yield Button("Install Selected", variant="primary", id="app_install_btn")
-                yield Button("Uninstall Selected", variant="error", id="app_uninstall_btn")
+                yield Button("Install Selected", variant="primary", id="app_install_btn", classes="compact")
+                yield Button("Uninstall Selected", variant="error", id="app_uninstall_btn", classes="compact")
 
-        # Right Panel: Logs
-        with Vertical(classes="right-panel"):
-            yield Label("Installation Log")
-            yield RichLog(id="app_log", markup=True, highlight=True)
+        # Right Panel: Cart & Logs
+        with Vertical(id="apps_right_pane"):
+            # Cart Section
+            with Vertical(id="cart_section"):
+                yield Label("Selected Apps", id="cart_header")
+                yield ListView(id="cart_list")
+
+            # Log Section
+            with Vertical(id="log_section"):
+                yield Label("Logs")
+                yield RichLog(id="app_log", markup=True, highlight=True)
 
     def on_mount(self):
         self.query_one("#install_progress", ProgressBar).display = False
         
-        # Configure DataTable
-        table = self.query_one("#app_table", DataTable)
-        table.add_column("Select", key="Select")
-        table.add_column("Name", key="Name")
-        table.add_column("Category", key="Category")
-        table.add_column("Source", key="Source")
-        table.add_column("Tier", key="Tier")
-        table.add_column("Status", key="Status")
+        # Configure all DataTables
+        for category in APPS_CATEGORIES.keys():
+            table_id = get_table_id(category)
+            try:
+                table = self.query_one(f"#{table_id}", DataTable)
+                table.add_column("Select", key="Select")
+                table.add_column("Name", key="Name")
+                table.add_column("Source", key="Source")
+                table.add_column("Tier", key="Tier")
+                table.add_column("Status", key="Status")
+            except Exception:
+                pass
         
         # Populate data
         self.run_worker(self.refresh_app_status(), exclusive=True)
 
     async def refresh_app_status(self):
-        """Check installed status of all apps and populate the table."""
+        """Check installed status of all apps and populate the tables."""
         self.log_message("Checking installed applications...")
-        table = self.query_one("#app_table", DataTable)
-        table.clear()
         
         installed_packages = await self.get_installed_packages()
-        flat_apps = get_flat_app_list()
         
-        for app in flat_apps:
-            is_installed = app['pkg'] in installed_packages
-            
-            # Determine selection status
-            # If installed: Checked (X)
-            # If not installed but Default: Checked (X)
-            # If not installed and not Default: Unchecked ( )
-            # We use a simple text representation for checkbox for now inside DataTable
-            
-            # However, for the logic of "Install Selected", we usually want to select things TO BE installed.
-            # But standard installers show installed state.
-            # Let's follow the previous logic:
-            # Selection means "I want this on my system".
-            # If installed, it is selected. If user unselects, they might mean uninstall (if we support sync).
-            # But current buttons are "Install Selected" and "Uninstall Selected".
-            # So "Install Selected" should install checked items that ARE NOT installed.
-            # "Uninstall Selected" should uninstall checked items that ARE installed.
-            
-            should_be_checked = is_installed or app.get('default', False)
-            check_mark = r"\[x]" if should_be_checked else r"\[ ]"
-            
-            status_str = "[green]Installed[/green]" if is_installed else "[dim]Not Installed[/dim]"
-            
-            # Store the full app object in the row key or tag if possible, 
-            # but DataTable stores data by row/col. We can map row_key to app data.
-            row_key = app['pkg']
-            
-            table.add_row(
-                check_mark, 
-                app['name'], 
-                app['category'], 
-                app['source'], 
-                app['tier'], 
-                status_str,
-                key=row_key
-            )
+        # Populate local set with installed apps initially (optional, but good for UX)
+        # Or keep selection separate from installed status?
+        # "Selection means I want this". If it's installed, it's already "selected" in a way.
+        # Let's auto-select installed apps.
+        for pkg in installed_packages:
+             # Only add if it's one of our known apps
+             flat = get_flat_app_list()
+             if any(a['pkg'] == pkg for a in flat):
+                 self.selected_apps.add(pkg)
+
+        self.update_cart_view()
+
+        # Iterate categories to populate each table
+        for category, apps in APPS_CATEGORIES.items():
+            table_id = get_table_id(category)
+            try:
+                table = self.query_one(f"#{table_id}", DataTable)
+                table.clear()
+                
+                for app_name, app_details in apps.items():
+                    pkg = app_details['pkg']
+                    is_installed = pkg in installed_packages
+                    is_selected = pkg in self.selected_apps
+                    
+                    check_mark = r"\[x]" if is_selected else r"\[ ]"
+                    status_str = "[green]Installed[/green]" if is_installed else "[dim]Not Installed[/dim]"
+                    
+                    table.add_row(
+                        check_mark,
+                        app_name,
+                        app_details['source'],
+                        app_details.get('tier', ''),
+                        status_str,
+                        key=pkg
+                    )
+            except Exception:
+                continue
             
         self.log_message("[green]Application list updated.[/green]")
+
+    def update_cart_view(self):
+        """Refresh the Cart ListView based on self.selected_apps."""
+        cart_list = self.query_one("#cart_list", ListView)
+        cart_list.clear()
+        
+        if not self.selected_apps:
+            cart_list.append(ListItem(Label("[dim]No apps selected[/dim]")))
+            return
+
+        # Sort for display
+        sorted_apps = sorted(list(self.selected_apps))
+        
+        flat_apps = get_flat_app_list()
+        
+        for pkg in sorted_apps:
+            # Find readable name
+            app_data = next((a for a in flat_apps if a['pkg'] == pkg), None)
+            name = app_data['name'] if app_data else pkg
+            
+            item_layout = Horizontal(
+                Label(f"{name} ({pkg})"),
+                Button("x", id=f"remove_{pkg}", classes="compact remove-btn"),
+                classes="cart-item"
+            )
+            cart_list.append(ListItem(item_layout))
 
     @on(DataTable.CellSelected)
     def on_cell_selected(self, event: DataTable.CellSelected):
         """
-        Handle cell selection (Click or Enter).
-        - Column 0 (Select): Toggle checkbox.
-        - Other columns: Open description.
+        Handle cell selection across any table.
         """
-        row_key = event.cell_key.row_key.value
+        row_key = event.cell_key.row_key.value # This is the pkg ID
 
         # Use coordinate.column (index) for reliability
         if event.coordinate.column == 0:
             table = event.data_table
             current_val = table.get_cell_at(event.coordinate)
             
-            # Toggle
-            new_val = r"\[ ]" if r"\[x]" in str(current_val) else r"\[x]"
+            # Toggle logic
+            if r"\[x]" in str(current_val):
+                # Deselect
+                new_val = r"\[ ]"
+                if row_key in self.selected_apps:
+                    self.selected_apps.remove(row_key)
+            else:
+                # Select
+                new_val = r"\[x]"
+                self.selected_apps.add(row_key)
+            
             table.update_cell_at(event.coordinate, new_val)
+            self.update_cart_view()
         
         else:
             # Any other column -> Show Details
@@ -289,18 +352,6 @@ class AppInstaller(Horizontal):
             
             if app_data:
                  self.app.push_screen(AppDescriptionScreen(app_data))
-
-    @on(Button.Pressed, "#btn_app_select_all")
-    def select_all_apps(self):
-        table = self.query_one("#app_table", DataTable)
-        for row_key in table.rows:
-            table.update_cell(row_key, "Select", r"\[x]")
-
-    @on(Button.Pressed, "#btn_app_deselect_all")
-    def deselect_all_apps(self):
-        table = self.query_one("#app_table", DataTable)
-        for row_key in table.rows:
-            table.update_cell(row_key, "Select", r"\[ ]")
 
     async def get_installed_packages(self) -> set[str]:
         """Return a set of all installed packages (pacman + yay)."""
@@ -319,38 +370,139 @@ class AppInstaller(Horizontal):
 
     @on(Button.Pressed, "#app_install_btn")
     def install_selected(self):
-        table = self.query_one("#app_table", DataTable)
-        selected_pkgs = []
+        # Filter selected apps that are NOT installed?
+        # Or just reinstall everything selected?
+        # Usually "Install" implies installing missing things.
+        # But let's just pass the list to the installer logic, which usually handles existing things gracefully (reinstall/skip).
         
-        # Iterate over all rows to check the "Select" column
-        for row_key in table.rows:
-            # Column 0 is Select
-            select_cell = table.get_cell(row_key, "Select")
-            if r"\[x]" in str(select_cell):
-                selected_pkgs.append(row_key.value) # row_key is the pkg name
-        
-        if not selected_pkgs:
-            self.log_message("[yellow]No applications selected for installation.[/yellow]")
+        if not self.selected_apps:
+            self.log_message("[yellow]No applications selected.[/yellow]")
             return
 
         self.query_one("#app_install_btn", Button).disabled = True
         self.query_one("#app_uninstall_btn", Button).disabled = True
         self.query_one("#install_progress", ProgressBar).display = True
         
-        self.run_worker(self.run_installation(selected_pkgs), exclusive=True)
+        self.run_worker(self.run_installation(list(self.selected_apps)), exclusive=True)
+
+    @on(Button.Pressed)
+    def on_button_pressed(self, event: Button.Pressed):
+        btn_id = event.button.id
+        if not btn_id:
+            return
+            
+        if btn_id == "tab_prev":
+            self.action_prev_tab()
+        elif btn_id == "tab_next":
+            self.action_next_tab()
+        elif btn_id == "select_all":
+            self.action_select_all_tab()
+        elif btn_id == "deselect_all":
+            self.action_deselect_all_tab()
+        elif btn_id.startswith("remove_"):
+            pkg_to_remove = btn_id.replace("remove_", "")
+            if pkg_to_remove in self.selected_apps:
+                self.selected_apps.remove(pkg_to_remove)
+                self.update_cart_view()
+                self.refresh_tables_checkmarks()
+
+    def action_prev_tab(self):
+        tabs = self.query_one("#apps_tabs", TabbedContent)
+        if not tabs.active: return
+        
+        panes = [c.id for c in tabs.query(TabPane)]
+        if not panes: return
+        
+        try:
+            curr_idx = panes.index(tabs.active)
+            new_idx = (curr_idx - 1) % len(panes)
+            tabs.active = panes[new_idx]
+        except ValueError:
+            pass
+
+    def action_next_tab(self):
+        tabs = self.query_one("#apps_tabs", TabbedContent)
+        if not tabs.active: return
+        
+        panes = [c.id for c in tabs.query(TabPane)]
+        if not panes: return
+        
+        try:
+            curr_idx = panes.index(tabs.active)
+            new_idx = (curr_idx + 1) % len(panes)
+            tabs.active = panes[new_idx]
+        except ValueError:
+            pass
+
+    def action_select_all_tab(self):
+        self._toggle_tab_selection(select=True)
+
+    def action_deselect_all_tab(self):
+        self._toggle_tab_selection(select=False)
+
+    def _toggle_tab_selection(self, select: bool):
+        tabs = self.query_one("#apps_tabs", TabbedContent)
+        if not tabs.active: return
+        
+        # TabPane ID is "tab_table_xxx", table ID is "table_xxx"
+        # We constructed TabPane ID as f"tab_{table_id}"
+        # So we can derive table ID from TabPane ID
+        active_pane_id = tabs.active
+        if not active_pane_id.startswith("tab_"): return
+        
+        table_id = active_pane_id[4:] # remove "tab_" prefix
+        
+        try:
+            table = self.query_one(f"#{table_id}", DataTable)
+        except Exception:
+            return
+
+        # Iterate rows
+        # row_key in table is the pkg ID
+        # But table.rows is a dict of row_key -> Row
+        # We need to iterate over keys
+        
+        # Textual DataTable API: table.rows is different in versions.
+        # Safer to use coordinate iteration or just iterate over list of data if we have it.
+        # But we used APPS_CATEGORIES to build it.
+        
+        # Reverse lookup category from table_id? Or just iterate all rows in table.
+        # table.coordinate_to_cell_key map exists?
+        
+        # Let's use the fact that row keys are pkg names
+        # We can just scan the table's rows.
+        
+        # In modern Textual, table.rows is a dict.
+        for row_key in table.rows:
+             pkg = row_key.value
+             if select:
+                 self.selected_apps.add(pkg)
+             else:
+                 if pkg in self.selected_apps:
+                     self.selected_apps.remove(pkg)
+        
+        self.update_cart_view()
+        self.refresh_tables_checkmarks()
+
+    def refresh_tables_checkmarks(self):
+        """Update checkmarks in all tables based on current selection."""
+        for category in APPS_CATEGORIES.keys():
+            table_id = get_table_id(category)
+            try:
+                table = self.query_one(f"#{table_id}", DataTable)
+                for row_key in table.rows:
+                    pkg = row_key.value
+                    is_selected = pkg in self.selected_apps
+                    check_mark = r"\[x]" if is_selected else r"\[ ]"
+                    # Update column 0 ("Select")
+                    table.update_cell(row_key, "Select", check_mark)
+            except Exception:
+                pass
 
     @on(Button.Pressed, "#app_uninstall_btn")
     def uninstall_selected(self):
-        table = self.query_one("#app_table", DataTable)
-        selected_pkgs = []
-        
-        for row_key in table.rows:
-            select_cell = table.get_cell(row_key, "Select")
-            if r"\[x]" in str(select_cell):
-                selected_pkgs.append(row_key.value)
-        
-        if not selected_pkgs:
-            self.log_message("[yellow]No applications selected for uninstall.[/yellow]")
+        if not self.selected_apps:
+            self.log_message("[yellow]No applications selected.[/yellow]")
             return
 
         # Push confirmation screen
@@ -362,11 +514,11 @@ class AppInstaller(Horizontal):
                         self.query_one("#app_install_btn", Button).disabled = True
                         self.query_one("#app_uninstall_btn", Button).disabled = True
                         self.query_one("#install_progress", ProgressBar).display = True
-                        self.run_worker(self.run_uninstallation(selected_pkgs), exclusive=True)
+                        self.run_worker(self.run_uninstallation(list(self.selected_apps)), exclusive=True)
                 
                 self.app.push_screen(UninstallSafetyScreen(), check_safety)
 
-        self.app.push_screen(UninstallConfirmationScreen(len(selected_pkgs)), check_confirm)
+        self.app.push_screen(UninstallConfirmationScreen(len(self.selected_apps)), check_confirm)
 
     async def run_installation(self, selected_pkgs):
         progress_bar = self.query_one("#install_progress", ProgressBar)

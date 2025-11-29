@@ -25,16 +25,27 @@ GOAT'd - Setup Ally is a unified, portable post-install tool designed for Arch L
     *   **Universal Driver Search**: Automatically queries the AUR for compatible drivers to get your printer setup without the headache.
     ![Printers Screenshot](docs/Img/Printers%20Screenshot.png)
 
+*   **GPU Management (New in v1.1)**:
+    *   **OS-Aware Installer**: Automatically detects your distro (Arch/EndeavourOS) and hardware to build the perfect driver installation plan.
+    *   **Review Plan**: See exactly what packages will be installed and what commands will be run *before* you click confirm.
+    *   **GSP Manager**: Fix stuttering on RTX 20/30/40 series cards by managing Nvidia's GSP firmware safely.
+
 *   **GoatFetch**:
     *   **Auto-Detection**: Automatically checks for `fastfetch` and prompts for installation if missing.
     *   **Interactive Config**: Browse themes, customize layouts, and make your terminal your own with a built-in configuration tool.
 
 *   **Transparency First**:
     *   **Real-time Logging**: Watch operations happen step-by-step in the integrated log viewer.
+    *   **Copy Logs**: Easily copy execution logs to your clipboard with a single click for sharing or debugging.
 
 ## Usage
 
-To run GOAT'd - Setup Ally, simply execute the wrapper script from the terminal:
+To run GOAT'd - Setup Ally, simply execute the wrapper script from the terminal. The script will automatically check for and install necessary dependencies (like python, pip, and system clipboard tools).
+
+```bash
+chmod +x goatd.sh
+./goatd.sh
+```
 
 ```bash
 chmod +x goatd.sh

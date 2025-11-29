@@ -314,6 +314,10 @@ RichLog {
     color: $accent;
 }
 
+#cmd_preview {
+    height: 4;
+}
+
 .light-mode RichLog {
     border: solid $secondary-light;
     background: $bg-surface-light;
@@ -1063,6 +1067,237 @@ FastFetchMissingScreen {
 }
 
 #ff_missing_actions Button {
+    margin: 0 1;
+    width: 1fr;
+}
+/* ========================================================================== */
+/* UI REFACTOR STYLES                                                         */
+/* ========================================================================== */
+
+.compact {
+    height: 1;
+    padding: 0 1;
+    border: none;
+    min-width: 5;
+}
+
+.compact:hover {
+    background: $primary-hover;
+    color: $text-inverse;
+}
+
+/* AppInstaller Layout Overrides */
+
+#apps_container {
+    layout: horizontal;
+    height: 1fr;
+}
+
+#apps_left_pane {
+    width: 70%;
+    height: 100%;
+    padding-right: 1;
+}
+
+#apps_right_pane {
+    width: 30%;
+    height: 100%;
+    border-left: solid $secondary;
+    padding-left: 1;
+    layout: vertical;
+}
+
+.light-mode #apps_right_pane {
+    border-left: solid $secondary-light;
+}
+
+/* App Toolbar */
+#app_toolbar {
+    height: auto;
+    background: $bg-surface;
+    border-bottom: solid $secondary;
+    align: center middle;
+    padding: 0 1;
+    margin-bottom: 1;
+}
+
+.light-mode #app_toolbar {
+    background: $bg-surface-light;
+    border-bottom: solid $secondary-light;
+}
+
+#app_toolbar Button {
+    margin: 0 1;
+    min-width: 4;
+    height: 1;
+    border: none;
+}
+
+/* Cart Styling */
+#cart_section {
+    height: 2fr;
+    border: solid $secondary;
+    background: $bg-surface;
+    margin-bottom: 1;
+}
+
+.light-mode #cart_section {
+    border: solid $secondary-light;
+    background: $bg-surface-light;
+}
+
+#cart_list {
+    height: 1fr;
+    overflow-y: auto;
+}
+
+.cart-item {
+    layout: horizontal;
+    height: auto;
+    width: 100%;
+    align-vertical: middle;
+    padding: 0 0;
+}
+
+.cart-item Label {
+    width: 1fr;
+    padding: 0;
+}
+
+.remove-btn {
+    width: auto;
+    min-width: 3;
+    height: 1;
+    padding: 0 1;
+    background: #333333;
+    border: none;
+    color: $text-main;
+    margin-left: 1;
+}
+
+.remove-btn:hover {
+    background: #FF8800;
+    color: #ffffff;
+    border: none;
+}
+
+.light-mode .remove-btn {
+    background: #e0e0e0;
+    color: $text-main-light;
+}
+
+.light-mode .remove-btn:hover {
+    background: #FF8800;
+    color: #ffffff;
+    border: none;
+}
+
+#cart_header {
+    dock: top;
+    background: $bg-surface-hover;
+    color: $secondary;
+    text-style: bold;
+    text-align: center;
+    padding: 0 1;
+}
+
+.light-mode #cart_header {
+    background: $bg-surface-hover-light;
+    color: $secondary-light;
+}
+
+#log_section {
+    height: 1fr;
+    border: solid $secondary;
+    background: $bg-surface;
+}
+
+.light-mode #log_section {
+    border: solid $secondary-light;
+    background: $bg-surface-light;
+}
+
+/* ========================================================================== */
+/* GSP MANAGER STYLES                                                         */
+/* ========================================================================== */
+
+GSPManagerScreen {
+    align: center middle;
+    background: rgba(0, 0, 0, 0.8);
+}
+
+#gsp_manager_container {
+    width: 80%;
+    height: 80%;
+    border: tall $secondary;
+    background: $bg-surface;
+    padding: 1 2;
+}
+
+.light-mode #gsp_manager_container {
+    border: tall $secondary-light;
+    background: $bg-surface-light;
+}
+
+#gsp_title {
+    text-align: center;
+    text-style: bold;
+    width: 100%;
+    border-bottom: solid $border-subtle;
+    margin-bottom: 1;
+    color: $secondary;
+}
+
+.light-mode #gsp_title {
+    border-bottom: solid $border-subtle-light;
+    color: $secondary-light;
+}
+
+.info-box {
+    height: auto;
+    border: solid $border-subtle;
+    margin-bottom: 1;
+    padding: 1;
+}
+
+.light-mode .info-box {
+    border: solid $border-subtle-light;
+}
+
+#gsp_status_label {
+    text-style: bold;
+    margin-bottom: 1;
+}
+
+.info-text {
+    color: $text-muted;
+}
+
+.light-mode .info-text {
+    color: $text-muted-light;
+}
+
+#gsp_log {
+    height: 1fr;
+    border: solid $secondary;
+    background: $bg-surface;
+    color: $accent;
+    margin-bottom: 1;
+}
+
+.light-mode #gsp_log {
+    border: solid $secondary-light;
+    background: $bg-surface-light;
+    color: $accent-light;
+}
+
+#gsp_actions {
+    height: auto;
+    align: center middle;
+    margin-top: 1;
+}
+
+#gsp_actions Button {
     margin: 0 1;
     width: 1fr;
 }
