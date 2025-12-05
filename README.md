@@ -70,11 +70,6 @@ chmod +x goatd.sh
 ./goatd.sh
 ```
 
-```bash
-chmod +x goatd.sh
-./goatd.sh
-```
-
 ## Support the Project
 
 If you find this tool useful, consider supporting its development!
