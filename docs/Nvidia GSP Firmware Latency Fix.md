@@ -18,7 +18,7 @@ The core failure mechanism lies in the GSP firmware’s aggressive power managem
 
 The Linux community currently faces a bifurcated driver landscape. The "Open Kernel Modules" (nvidia-open), which Nvidia intends to be the future standard, fundamentally rely on the GSP and cannot function without it. Conversely, the legacy "Proprietary" (Closed) drivers retain the ability to disable GSP offloading via kernel parameters, reverting control to the host CPU.11
 
-For users suffering from desktop lag, the only robust remediation is to utilize the proprietary driver stack and explicitly disable the GSP firmware using the kernel parameter nvidia.NVreg\_EnableGpuFirmware=0.1 This report provides an exhaustive technical analysis of the GSP architecture, the specific failure modes observed in the 555+ drivers, and detailed, automated implementation strategies for system administrators and power users to mitigate these issues across various bootloader configurations.
+For users suffering from desktop lag, the only reliable remediation is to utilize the proprietary driver stack and explicitly disable the GSP firmware using the kernel parameter nvidia.NVreg\_EnableGpuFirmware=0.1 This report provides an exhaustive technical analysis of the GSP architecture, the specific failure modes observed in the 555+ drivers, and detailed, automated implementation strategies for system administrators and power users to mitigate these issues across various bootloader configurations.
 
 ---
 
@@ -178,7 +178,7 @@ Users utilizing nvidia-open or nvidia-open-dkms cannot use this fix. The open ke
 
 To apply this remediation effectively, the kernel parameter must be passed during the boot process. The methodology differs depending on the bootloader (GRUB vs. Systemd-boot) and the specific distribution tooling (e.g., EndeavourOS's kernel-install automation).
 
-The following sections detail the "GOAT'd" automation logic—a robust, scripted approach to detecting the environment and applying the fix persistently.
+The following sections detail the "GOAT'd" automation logic—a resilient, scripted approach to detecting the environment and applying the fix persistently.
 
 ### **6.1 Scenario A: GRUB (Arch Standard, Fedora, Debian)**
 

@@ -27,7 +27,7 @@ The "GPU" feature is a primary tab alongside "Apps", "Printers", and "Tasks".
     -   **Action**: "Next" button -> **Review Plan** -> "Confirm" button.
 
 #### Installation Logic & Phases (`src/gpu_installer.py`)
-The installer uses a phased approach to ensure robust, distinct, or combined deployments.
+The installer uses a phased approach to ensure reliable, distinct, or combined deployments.
 
 **1. Logic Split (Matrix)**
 *   **Nvidia:**
@@ -179,4 +179,4 @@ This section provides an honest assessment of the current codebase state versus 
 
 ### 5.3 Missing Features (Planned)
 *   **Pre-Flight Checks:** The design calls for internet connectivity checks, lock file detection, and sudo verification. **These are currently missing** from `src/gpu_installer.py`. The command execution assumes a happy path.
-*   **Error Handling:** The `ExecutionModal` captures stdout/stderr but does not have robust recovery logic if a `pacman` transaction fails halfway through.
+*   **Error Handling:** The `ExecutionModal` captures stdout/stderr but does not have comprehensive recovery logic if a `pacman` transaction fails halfway through.

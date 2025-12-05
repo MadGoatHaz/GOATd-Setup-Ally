@@ -1,6 +1,6 @@
 from textual.app import App, ComposeResult
 from textual.screen import ModalScreen
-from textual.widgets import Button, Label, Static, RadioSet, RadioButton, RichLog, Input, Checkbox
+from textual.widgets import Button, Label, Static, RadioSet, RadioButton, RichLog, Input, Checkbox, DataTable
 from textual.containers import Grid, Vertical, Horizontal, Container
 from textual import on, work
 import asyncio
@@ -9,6 +9,7 @@ import subprocess
 import pyperclip
 from gpu import get_system_gpu_info
 from gpu_installer import get_installation_plan, generate_installation_command
+from rich.markup import escape
 
 class GSPManagerScreen(ModalScreen):
     """Screen for Nvidia GSP Firmware Management."""
@@ -66,9 +67,9 @@ class GSPManagerScreen(ModalScreen):
                  # Attempt with sudo if failed (might prompt in terminal if we didn't suspend?
                  # actually capturing output with sudo without suspend will fail if password needed)
                  self.log_message("[yellow]Could not read config without sudo. Assuming ENABLED or blocked.[/yellow]")
-                 self.log_message(f"[dim]Error: {res.stderr}[/dim]")
+                 self.log_message(f"[dim]Error: {escape(res.stderr)}[/dim]")
         except Exception as e:
-            self.log_message(f"[red]Exception checking status: {e}[/red]")
+            self.log_message(f"[red]Exception checking status: {escape(str(e))}[/red]")
 
     def update_status(self, status):
         status_lbl = self.query_one("#gsp_status_label", Label)
@@ -109,7 +110,7 @@ class GSPManagerScreen(ModalScreen):
         arg = "--disable" if action == "disable" else "--enable"
         cmd = f"sudo python3 src/gsp_manager.py {arg}"
         
-        self.log_message(f"[bold blue]Launching: {cmd}[/bold blue]")
+        self.log_message(f"[bold blue]Launching: {escape(cmd)}[/bold blue]")
         self.app.push_screen(ExecutionModal(cmd), self.on_gsp_finished)
 
     def on_gsp_finished(self, result=None):
@@ -180,7 +181,7 @@ class ExecutionModal(ModalScreen):
     @work(exclusive=True)
     async def run_process(self):
         log = self.query_one("#exec-output", RichLog)
-        log.write(f"[bold blue]Command:[/bold blue] {self.command}\n")
+        log.write(f"[bold blue]Command:[/bold blue] {escape(self.command)}\n")
         
         try:
             # Use shell execution to properly handle chained commands (&&) and bashisms
@@ -195,7 +196,7 @@ class ExecutionModal(ModalScreen):
                 line = await process.stdout.readline()
                 if not line:
                     break
-                log.write(line.decode().strip())
+                log.write(escape(line.decode().strip()))
             
             await process.wait()
             
@@ -205,7 +206,7 @@ class ExecutionModal(ModalScreen):
                 log.write(f"\n[red]Process exited with error code {process.returncode}[/red]")
                 
         except Exception as e:
-            log.write(f"\n[red]Failed to start process: {e}[/red]")
+            log.write(f"\n[red]Failed to start process: {escape(str(e))}[/red]")
             
         self.query_one("#btn_close_exec", Button).disabled = False
         self.query_one("#btn_copy_logs", Button).disabled = False
@@ -346,8 +347,9 @@ class DriverInstallModal(ModalScreen):
             yield Label("Select Driver Type:")
             with RadioSet(id="type_radio", classes="option-group"):
                 if self.vendor_id == "nvidia":
-                    yield RadioButton("Proprietary (Closed Source) - Recommended", value=True, id="type_prop")
-                    yield RadioButton("Open Source (New, Alpha)", id="type_open")
+                    yield RadioButton("Open Source (Recommended)", value=True, id="type_open")
+                    yield RadioButton("Proprietary (Closed Source)", id="type_prop")
+                    yield RadioButton("Beta (AUR/Newest)", id="type_beta")
                 elif self.vendor_id == "amd":
                     yield RadioButton("Open Source (Mesa/RADV) - Recommended", value=True, id="type_open")
                     yield RadioButton("Proprietary (AMDGPU-PRO)", id="type_prop")
@@ -440,7 +442,7 @@ class PlanReviewModal(ModalScreen):
 
     def on_mount(self):
         log = self.query_one("#plan-preview", RichLog)
-        log.write(self.command)
+        log.write(escape(self.command))
 
     @on(Button.Pressed, "#btn_cancel_plan")
     def cancel(self):
@@ -536,7 +538,7 @@ class GPUConfigWidget(Container):
         # Info Panel
         yield Label("System Status", classes="section-title")
         with Container(id="discovery-panel"):
-            yield Static("Loading...", id="gpu_info_static")
+            yield DataTable(id="gpu_info_table")
 
         # Main Layout
         with Horizontal(id="main-layout"):
@@ -555,9 +557,14 @@ class GPUConfigWidget(Container):
                 yield RichLog(id="gpu_log", markup=True)
 
     def on_mount(self):
+        table = self.query_one("#gpu_info_table", DataTable)
+        table.add_columns("Device", "Driver Version", "Driver Type", "GSP Firmware")
         self.refresh_gpu_info()
 
     def refresh_gpu_info(self):
+        table = self.query_one("#gpu_info_table", DataTable)
+        table.clear()
+
         data = get_system_gpu_info()
         
         gpus = data.get("gpus", [])
@@ -566,9 +573,9 @@ class GPUConfigWidget(Container):
         # Reset vendor_id
         self.vendor_id = None
         
-        info_text = ""
         if not gpus:
-            info_text = "[red]No GPUs detected[/red]"
+            # Handle no GPUs case if needed, possibly add a row stating so
+            pass
         else:
             for gpu in gpus:
                 if not self.vendor_id and "vendor_id" in gpu:
@@ -579,12 +586,25 @@ class GPUConfigWidget(Container):
                 driver = gpu.get('driver', 'Unknown')
                 driver_type = gpu.get('driver_type', 'Unknown')
                 
-                # Compact formatting
-                info_text += f"[bold]{vendor} {model}[/bold]  |  "
-                info_text += f"Driver: {driver} ({driver_type})  |  "
-                info_text += f"[bold]GSP Firmware:[/bold] {gsp_status}\n"
-        
-        self.query_one("#gpu_info_static", Static).update(info_text)
+                device_str = f"{vendor} {model}"
+                
+                # Style Driver Type
+                dt_styled = driver_type
+                if "Open Source" in driver_type:
+                    dt_styled = f"[green]{driver_type}[/green]"
+                elif "Beta" in driver_type:
+                    dt_styled = f"[yellow]{driver_type}[/yellow]"
+                elif "Proprietary" in driver_type:
+                    dt_styled = f"[red]{driver_type}[/red]"
+                
+                # Style GSP Firmware
+                gsp_styled = gsp_status
+                if "Enabled" in gsp_status:
+                    gsp_styled = f"[green]{gsp_status}[/green]"
+                elif "Disabled" in gsp_status:
+                    gsp_styled = f"[red]{gsp_status}[/red]"
+
+                table.add_row(device_str, driver, dt_styled, gsp_styled)
 
     def log_msg(self, msg):
         self.query_one("#gpu_log", RichLog).write(msg)

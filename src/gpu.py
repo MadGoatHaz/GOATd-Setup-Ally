@@ -1,6 +1,8 @@
 import subprocess
 import json
 import shlex
+import sys
+import shutil
 
 import gsp_manager
 
@@ -17,7 +19,27 @@ def get_system_gpu_info():
         "gsp_configured": "Unknown"
     }
 
-    # 1. Hardware & Active Driver Discovery
+    # 1. Package Discovery
+    # We check for specific packages relevant to GPU drivers
+    target_packages = ["nvidia", "nvidia-lts", "nvidia-dkms", "nvidia-open", "nvidia-open-dkms", "nvidia-beta-dkms", "mesa"]
+    
+    if shutil.which('pacman'):
+        try:
+            # Use pacman -Qq to list all installed packages quietly
+            # This is safer than -Qs which does a fuzzy search on description
+            pacman_res = subprocess.run(['pacman', '-Qq'], capture_output=True, text=True)
+            if pacman_res.returncode == 0:
+                installed_set = set(pacman_res.stdout.splitlines())
+                for pkg in target_packages:
+                    if pkg in installed_set:
+                        results["installed_packages"].append(pkg)
+            else:
+                # Log to stderr to avoid corrupting stdout JSON
+                print(f"Warning: pacman returned non-zero exit code: {pacman_res.stderr}", file=sys.stderr)
+        except Exception as e:
+            print(f"Error checking packages: {e}", file=sys.stderr)
+
+    # 2. Hardware & Active Driver Discovery
     try:
         # Run lspci -mm for machine-readable hardware info
         lspci_mm_res = subprocess.run(['lspci', '-mm'], capture_output=True, text=True)
@@ -85,15 +107,22 @@ def get_system_gpu_info():
                         if driver == "nouveau":
                             driver_type = "Open Source (Community)"
                         elif driver == "nvidia":
-                            try:
-                                with open("/proc/driver/nvidia/version", "r") as f:
-                                    version_content = f.read()
-                                    if "Open Source" in version_content or "Open Kernel Module" in version_content:
-                                        driver_type = "Proprietary (Open Source Module)"
-                                    else:
-                                        driver_type = "Proprietary (Closed Source)"
-                            except Exception:
-                                driver_type = "Proprietary (Unknown)"
+                            # Check installed packages for specific variants first
+                            if "nvidia-beta-dkms" in results["installed_packages"]:
+                                driver_type = "Nvidia Beta (Proprietary)"
+                            elif "nvidia-open-dkms" in results["installed_packages"] or "nvidia-open" in results["installed_packages"]:
+                                driver_type = "Nvidia Open Source (Proprietary)"
+                            else:
+                                # Fallback to /proc check
+                                try:
+                                    with open("/proc/driver/nvidia/version", "r") as f:
+                                        version_content = f.read()
+                                        if "Open Source" in version_content or "Open Kernel Module" in version_content:
+                                            driver_type = "Proprietary (Open Source Module)"
+                                        else:
+                                            driver_type = "Proprietary (Closed Source)"
+                                except Exception:
+                                    driver_type = "Proprietary (Unknown)"
 
                         results["gpus"].append({
                             "slot": slot,
@@ -109,25 +138,7 @@ def get_system_gpu_info():
                     # Handle potential parsing errors
                     continue
     except Exception as e:
-        print(f"Error during hardware discovery: {e}")
-
-    # 2. Package Discovery
-    # We check for specific packages relevant to GPU drivers
-    target_packages = ["nvidia", "nvidia-lts", "nvidia-dkms", "nvidia-open", "nvidia-open-dkms", "mesa"]
-    try:
-        # Use pacman -Qq to list all installed packages quietly
-        # This is safer than -Qs which does a fuzzy search on description
-        pacman_res = subprocess.run(['pacman', '-Qq'], capture_output=True, text=True)
-        if pacman_res.returncode == 0:
-            installed_set = set(pacman_res.stdout.splitlines())
-            for pkg in target_packages:
-                if pkg in installed_set:
-                    results["installed_packages"].append(pkg)
-    except FileNotFoundError:
-        # pacman might not be available if not on Arch
-        pass
-    except Exception as e:
-        print(f"Error checking packages: {e}")
+        print(f"Error during hardware discovery: {e}", file=sys.stderr)
 
     # 3. GSP Status (NVIDIA specific)
     # Combined check using gsp_manager for configuration and nvidia-smi for active state

@@ -9,34 +9,57 @@ GOAT'd - Setup Ally is a unified, portable post-install tool designed for Arch L
 ## Key Features
 
 *   **Apps Management**:
-    *   **Smart App Installer**: Browse categories, see what's already installed, and batch install/uninstall with ease.
-    *   **Select/Deselect All**: Quickly manage bulk selections for efficient package handling.
-    *   **Safe Uninstall**: The "Uninstall Selected" feature includes built-in safety checks to prevent accidental removal of critical system components.
+
+    | Feature | Version | Description |
+    | :--- | :--- | :--- |
+    | **Smart App Installer** | v1.0 | Browse categories, see what's already installed, and batch install/uninstall with ease. |
+    | **Select/Deselect All** | v1.0 | Quickly manage bulk selections for efficient package handling. |
+    | **Safe Uninstall** | v1.0 | Includes built-in safety checks to prevent accidental removal of critical system components. |
+
     ![Apps Screenshot](docs/Img/Apps%20Screenshot.png)
 
 *   **System Tasks**:
-    *   **Smart Firewall Management**: Auto-detect required ports for installed apps (Steam, KDE Connect, etc.) and review rules before applying.
-    *   **Glass Box Transparency**: Every operation is previewed. Click any task to see the exact command or configuration details before execution.
-    *   **Granular Control**: Use "Select/Deselect All" or toggle individual tasks to decide exactly what runs on your system.
+
+    | Feature | Version | Description |
+    | :--- | :--- | :--- |
+    | **Smart Firewall Management** | v1.0 | Auto-detect required ports for installed apps (Steam, KDE Connect, etc.) and review rules before applying. |
+    | **Glass Box Transparency** | v1.0 | Every operation is previewed. Click any task to see the exact command or configuration details before execution. |
+    | **Granular Control** | v1.0 | Use "Select/Deselect All" or toggle individual tasks to decide exactly what runs on your system. |
+
     ![Tasks Screenshot](docs/Img/Tasks%20Screenshot.png)
 
 *   **Printers**:
-    *   **Automated Discovery**: Scans for IPP/DNSSD printers on your network.
-    *   **Universal Driver Search**: Automatically queries the AUR for compatible drivers to get your printer setup without the headache.
+
+    | Feature | Version | Description |
+    | :--- | :--- | :--- |
+    | **Automated Discovery** | v1.0 | Scans for IPP/DNSSD printers on your network. |
+    | **Universal Driver Search** | v1.0 | Automatically queries the AUR for compatible drivers to get your printer setup without the headache. |
+
     ![Printers Screenshot](docs/Img/Printers%20Screenshot.png)
 
-*   **GPU Management (New in v1.1)**:
-    *   **OS-Aware Installer**: Automatically detects your distro (Arch/EndeavourOS) and hardware to build the perfect driver installation plan.
-    *   **Review Plan**: See exactly what packages will be installed and what commands will be run *before* you click confirm.
-    *   **GSP Manager**: Fix stuttering on RTX 20/30/40 series cards by managing Nvidia's GSP firmware safely.
+*   **GPU Management**:
+
+    | Feature | Version | Description |
+    | :--- | :--- | :--- |
+    | **OS-Aware Installer** | v1.1 | Automatically detects your distro (Arch/EndeavourOS) and hardware to build the perfect driver installation plan. |
+    | **GSP Manager** | v1.1 | Fix stuttering on RTX 20/30/40 series cards by managing Nvidia's GSP firmware safely. |
+    | **Review Plan** | v1.1 | See exactly what packages will be installed and what commands will be run *before* you click confirm. |
+    | ***Beta Driver Support*** | v1.2 | Optionally install the latest Beta drivers from AUR for cutting-edge performance. |
+    | ***Conflict Resolution*** | v1.2 | Automatically handles removal of conflicting drivers to ensure a clean install. |
 
 *   **GoatFetch**:
-    *   **Auto-Detection**: Automatically checks for `fastfetch` and prompts for installation if missing.
-    *   **Interactive Config**: Browse themes, customize layouts, and make your terminal your own with a built-in configuration tool.
+
+    | Feature | Version | Description |
+    | :--- | :--- | :--- |
+    | **Auto-Detection** | v1.0 | Automatically checks for `fastfetch` and prompts for installation if missing. |
+    | **Interactive Config** | v1.0 | Browse themes, customize layouts, and make your terminal your own with a built-in configuration tool. |
 
 *   **Transparency First**:
-    *   **Real-time Logging**: Watch operations happen step-by-step in the integrated log viewer.
-    *   **Copy Logs**: Easily copy execution logs to your clipboard with a single click for sharing or debugging.
+
+    | Feature | Version | Description |
+    | :--- | :--- | :--- |
+    | **Real-time Logging** | v1.0 | Watch operations happen step-by-step in the integrated log viewer. |
+    | **Copy Logs** | v1.0 | Easily copy execution logs to your clipboard with a single click for sharing or debugging. |
 
 ## Usage
 

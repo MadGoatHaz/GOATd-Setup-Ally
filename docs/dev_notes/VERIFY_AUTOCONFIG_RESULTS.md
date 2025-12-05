@@ -29,4 +29,4 @@
 - **Assertion**: Validated `lpadmin` arguments for `-p` (printer name), `-v` (URI), and `-P` (PPD file).
 
 ## Conclusion
-The `PrinterSetup` class correctly handles real-world `lpinfo` output formats and safely generates configuration commands. The regex logic for USB model extraction is robust for standard URI formats.
+The `PrinterSetup` class correctly handles real-world `lpinfo` output formats and safely generates configuration commands. The regex logic for USB model extraction is reliable for standard URI formats.
